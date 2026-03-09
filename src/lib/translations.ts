@@ -21,6 +21,7 @@ export const t = {
   stats: "Статистик",
   education: "Боловсрол",
   reporting: "Мэдээлэх",
+  communityMap: "Иргэдийн Зураг",
   about: "Бидний тухай",
   terms: "Үйлчилгээний нөхцөл",
   privacy: "Нууцлалын бодлого",

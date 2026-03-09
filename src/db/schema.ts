@@ -1,9 +1,18 @@
-import { pgTable, uuid, varchar, integer, timestamp, date, pgEnum, doublePrecision } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, integer, timestamp, date, pgEnum, doublePrecision, text } from "drizzle-orm/pg-core";
 
 export const crimeCategoryEnum = pgEnum("crime_category", [
   "theft",
   "violence",
   "child_related",
+  "other",
+]);
+
+export const communityReportCategoryEnum = pgEnum("community_report_category", [
+  "suspicious_activity",
+  "theft",
+  "violence",
+  "harassment",
+  "child_safety",
   "other",
 ]);
 
@@ -26,4 +35,16 @@ export const dataSources = pgTable("data_sources", {
   url: varchar("url", { length: 255 }).notNull(),
   description: varchar("description", { length: 1000 }).notNull(),
   lastUpdated: date("last_updated").notNull(),
+});
+
+export const communityReports = pgTable("community_reports", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  category: communityReportCategoryEnum("category").notNull(),
+  title: varchar("title", { length: 160 }).notNull(),
+  details: text("details"),
+  areaLabel: varchar("area_label", { length: 160 }),
+  latitude: doublePrecision("latitude").notNull(),
+  longitude: doublePrecision("longitude").notNull(),
+  radiusMeters: integer("radius_meters").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });

@@ -2,43 +2,41 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, Menu, X, Phone } from "lucide-react";
+import { Shield, Menu, X, Phone, Radar } from "lucide-react";
 import { useState } from "react";
 import { t } from "@/lib/translations";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-
   return (
-    <nav className="bg-white sticky top-0 z-50 border-b border-stone-200">
-      <div className="max-w-6xl mx-auto px-5">
-        <div className="flex justify-between h-16 items-center">
-          
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 text-stone-900 group">
-            <div className="w-9 h-9 bg-stone-900 rounded-lg flex items-center justify-center">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-lg">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="flex justify-between h-16 items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 text-slate-900 group">
+            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm">
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div className="hidden sm:block">
               <div className="font-bold text-base leading-tight">{t.title}</div>
-              <div className="text-xs text-stone-500">Монгол Улс</div>
+              <div className="text-[11px] text-slate-500 inline-flex items-center gap-1">
+                <Radar className="w-3 h-3" /> Mongolia Monitoring Grid
+              </div>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1 rounded-xl bg-slate-100/85 px-1.5 py-1">
             <NavLink href="/map" label={t.map} active={pathname === "/map"} />
+            <NavLink href="/community-map" label={t.communityMap} active={pathname === "/community-map"} />
             <NavLink href="/stats" label={t.stats} active={pathname === "/stats"} />
             <NavLink href="/education" label={t.education} active={pathname === "/education"} />
             <NavLink href="/report" label={t.reporting} active={pathname === "/report"} />
           </div>
 
-          {/* Emergency button + Mobile menu */}
           <div className="flex items-center gap-3">
-            <Link 
-              href="/report" 
-              className="hidden sm:flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors"
+            <Link
+              href="/report"
+              className="hidden sm:flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-500 transition-colors"
             >
               <Phone className="w-4 h-4" />
               {t.emergencyContacts}
@@ -46,7 +44,7 @@ export function Navbar() {
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 text-stone-600 hover:text-stone-900 transition-colors"
+              className="md:hidden p-2 text-slate-600 hover:text-slate-900 transition-colors"
               aria-label="Menu"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -55,19 +53,19 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-stone-200">
+        <div className="md:hidden bg-white border-t border-slate-200">
           <div className="px-5 py-4 space-y-1">
             <MobileNavLink href="/map" label={t.map} active={pathname === "/map"} onClick={() => setIsOpen(false)} />
+            <MobileNavLink href="/community-map" label={t.communityMap} active={pathname === "/community-map"} onClick={() => setIsOpen(false)} />
             <MobileNavLink href="/stats" label={t.stats} active={pathname === "/stats"} onClick={() => setIsOpen(false)} />
             <MobileNavLink href="/education" label={t.education} active={pathname === "/education"} onClick={() => setIsOpen(false)} />
             <MobileNavLink href="/report" label={t.reporting} active={pathname === "/report"} onClick={() => setIsOpen(false)} />
-            
+
             <div className="pt-3">
-              <Link 
-                href="/report" 
-                className="flex items-center justify-center gap-2 w-full bg-stone-900 text-white px-4 py-3 rounded-lg text-sm font-medium"
+              <Link
+                href="/report"
+                className="flex items-center justify-center gap-2 w-full bg-red-600 text-white px-4 py-3 rounded-xl text-sm font-semibold"
                 onClick={() => setIsOpen(false)}
               >
                 <Phone className="w-4 h-4" />
@@ -81,14 +79,18 @@ export function Navbar() {
   );
 }
 
-function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+function NavLink({ href, label, active, wallboard = false }: { href: string; label: string; active: boolean; wallboard?: boolean }) {
   return (
-    <Link 
-      href={href} 
-      className={`px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
-        active 
-          ? "text-stone-900 bg-stone-100" 
-          : "text-stone-600 hover:text-stone-900 hover:bg-stone-50"
+    <Link
+      href={href}
+      className={`px-4 py-2 text-sm font-semibold transition-colors rounded-lg ${
+        wallboard
+          ? active
+            ? "text-white bg-white/10"
+            : "text-slate-300 hover:text-white"
+          : active
+          ? "text-slate-900 bg-white shadow-sm"
+          : "text-slate-600 hover:text-slate-900"
       }`}
     >
       {label}
@@ -101,9 +103,7 @@ function MobileNavLink({ href, label, active, onClick }: { href: string; label: 
     <Link
       href={href}
       className={`block px-4 py-3 text-base font-medium transition-colors rounded-lg ${
-        active 
-          ? "text-stone-900 bg-stone-100" 
-          : "text-stone-700 hover:bg-stone-50"
+        active ? "text-slate-900 bg-slate-100" : "text-slate-700 hover:bg-slate-50"
       }`}
       onClick={onClick}
     >
@@ -113,85 +113,61 @@ function MobileNavLink({ href, label, active, onClick }: { href: string; label: 
 }
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname === "/map") {
+    return (
+      <footer className="border-t border-slate-200/80 bg-white/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-5">
+          <div className="flex h-10 items-center justify-between gap-3 text-[10px] uppercase tracking-[0.14em] text-slate-500">
+            <span>Wallboard View</span>
+            <span className="hidden sm:block">Public safety snapshot</span>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
-    <footer className="bg-white border-t border-stone-200">
-      <div className="max-w-6xl mx-auto px-5 py-12">
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
-          
-          {/* About */}
+    <footer className="bg-white/70 border-t border-slate-200/80 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-5 py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-9">
           <div className="sm:col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 bg-stone-900 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
                 <Shield className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-stone-900">{t.title}</span>
+              <span className="font-bold text-slate-900">{t.title}</span>
             </div>
-            <p className="text-sm text-stone-600 leading-relaxed max-w-sm">
-              Олон нийтийн оролцоонд тулгуурласан аюулгүй байдлын мэдээллийн платформ. 
-              Бид нэгтгэсэн өгөгдлийг ашиглан иргэдийнхээ аюулгүй байдлыг хангах мэдээллийг хүргэдэг.
+            <p className="text-sm text-slate-600 leading-relaxed max-w-sm">
+              Нэгтгэсэн өгөгдөл дээр суурилсан олон нийтийн аюулгүй байдлын мэдээллийн платформ. Албан ёсны байгууллагын сувгийг орлохгүй.
             </p>
           </div>
 
-          {/* Navigation */}
           <div>
-            <h3 className="font-semibold text-stone-900 mb-4 text-sm">
-              Навигаци
-            </h3>
+            <h3 className="font-semibold text-slate-900 mb-4 text-sm">Навигаци</h3>
             <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/map" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.map}
-                </Link>
-              </li>
-              <li>
-                <Link href="/stats" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.stats}
-                </Link>
-              </li>
-              <li>
-                <Link href="/education" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.education}
-                </Link>
-              </li>
-              <li>
-                <Link href="/data-sources" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.dataSources}
-                </Link>
-              </li>
+              <li><Link href="/map" className="text-slate-600 hover:text-slate-900 transition-colors">{t.map}</Link></li>
+              <li><Link href="/community-map" className="text-slate-600 hover:text-slate-900 transition-colors">{t.communityMap}</Link></li>
+              <li><Link href="/stats" className="text-slate-600 hover:text-slate-900 transition-colors">{t.stats}</Link></li>
+              <li><Link href="/education" className="text-slate-600 hover:text-slate-900 transition-colors">{t.education}</Link></li>
+              <li><Link href="/data-sources" className="text-slate-600 hover:text-slate-900 transition-colors">{t.dataSources}</Link></li>
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
-            <h3 className="font-semibold text-stone-900 mb-4 text-sm">
-              Хууль зүй
-            </h3>
+            <h3 className="font-semibold text-slate-900 mb-4 text-sm">Хууль зүй</h3>
             <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/about" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.about}
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.terms}
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-stone-600 hover:text-stone-900 transition-colors">
-                  {t.privacy}
-                </Link>
-              </li>
+              <li><Link href="/about" className="text-slate-600 hover:text-slate-900 transition-colors">{t.about}</Link></li>
+              <li><Link href="/terms" className="text-slate-600 hover:text-slate-900 transition-colors">{t.terms}</Link></li>
+              <li><Link href="/privacy" className="text-slate-600 hover:text-slate-900 transition-colors">{t.privacy}</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="pt-8 border-t border-stone-200">
-          <p className="text-xs text-stone-500 text-center">
-            © {new Date().getFullYear()} Олон нийтийн аюулгүй байдлын платформ. 
-            Цагдаагийн албан ёсны портал биш.
+        <div className="pt-7 border-t border-slate-200/90">
+          <p className="text-xs text-slate-500 text-center">
+            © {new Date().getFullYear()} Олон нийтийн аюулгүй байдлын платформ. Цагдаагийн албан ёсны портал биш.
           </p>
         </div>
       </div>

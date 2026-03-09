@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef } from "react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-// TypeScript declarations for leaflet.heat plugin
-declare module 'leaflet' {
-  function heatLayer(
-    latlngs: Array<[number, number, number]>,
-    options?: HeatLayerOptions
-  ): HeatLayer;
+import "leaflet.heat";
+
+declare module "leaflet" {
+  function heatLayer(latlngs: Array<[number, number, number]>, options?: HeatLayerOptions): HeatLayer;
 
   interface HeatLayer extends L.Layer {
     setLatLngs(latlngs: Array<[number, number, number]>): this;
@@ -27,10 +25,6 @@ declare module 'leaflet' {
   }
 }
 
-// Import the heat plugin
-import 'leaflet.heat';
-
-// Fix Leaflet default marker icons
 const DefaultIcon = L.Icon.Default.prototype as unknown as {
   _getIconUrl?: string;
   options: L.IconOptions;
@@ -38,12 +32,14 @@ const DefaultIcon = L.Icon.Default.prototype as unknown as {
 
 delete DefaultIcon._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
 interface HeatmapData {
+  id?: string;
+  name?: string;
   lat: number;
   lng: number;
   count: number;
@@ -51,93 +47,191 @@ interface HeatmapData {
 
 interface SafetyHeatmapProps {
   data: HeatmapData[];
+  mode: "heat" | "bubble";
+  selectedPoint?: HeatmapData;
+  spotlightPoint?: HeatmapData;
 }
 
-export function SafetyHeatmap({ data }: SafetyHeatmapProps) {
+export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint }: SafetyHeatmapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
+  const bubbleLayerRef = useRef<L.LayerGroup | null>(null);
+  const selectedLayerRef = useRef<L.LayerGroup | null>(null);
+  const spotlightLayerRef = useRef<L.LayerGroup | null>(null);
 
-  // Initialize map once
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Create map with performance optimizations
     const map = L.map(mapRef.current, {
-      center: [47.9188, 106.9173], // Ulaanbaatar center
-      zoom: 12,
+      center: [47.9188, 106.9173],
+      zoom: 10,
       zoomControl: true,
       scrollWheelZoom: true,
-      preferCanvas: true, // Use canvas for better performance
-      renderer: L.canvas(), // Canvas renderer is faster than SVG
+      preferCanvas: true,
+      renderer: L.canvas(),
     });
 
     mapInstanceRef.current = map;
 
-    // Add OpenStreetMap tiles with caching
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
       maxZoom: 18,
-      keepBuffer: 2, // Keep tiles in memory
-      updateWhenIdle: true, // Update only when map stops moving
-      updateWhenZooming: false, // Don't update while zooming
+      keepBuffer: 2,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
     }).addTo(map);
 
-    // Cleanup on unmount
     return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
+      map.remove();
+      mapInstanceRef.current = null;
     };
   }, []);
 
-  // Update heatmap when data changes
   useEffect(() => {
     if (!mapInstanceRef.current || !data.length) return;
 
-    // Remove old heat layer if exists
+    const map = mapInstanceRef.current;
+
     if (heatLayerRef.current) {
-      mapInstanceRef.current.removeLayer(heatLayerRef.current);
+      map.removeLayer(heatLayerRef.current);
+      heatLayerRef.current = null;
     }
 
-    // Find max count for normalization
-    const maxCount = Math.max(...data.map(p => p.count));
-    
-    // Convert to heatmap format: [lat, lng, intensity]
-    const heatData: Array<[number, number, number]> = data.map(point => [
-      point.lat,
-      point.lng,
-      point.count / maxCount // Normalize to 0-1 range
-    ]);
+    if (bubbleLayerRef.current) {
+      map.removeLayer(bubbleLayerRef.current);
+      bubbleLayerRef.current = null;
+    }
 
-    // Create heat layer with optimized settings
-    const heatLayer = L.heatLayer(heatData, {
-      radius: 30, // Size of each heat point
-      blur: 25,   // Amount of blur
-      maxZoom: 15, // Max zoom to show heat
-      max: 1.0,    // Maximum intensity
-      minOpacity: 0.3, // Minimum opacity
-      gradient: {
-        0.0: '#3b82f6',  // blue - low
-        0.25: '#22d3ee', // cyan
-        0.4: '#fbbf24',  // yellow
-        0.6: '#f97316',  // orange
-        0.8: '#ef4444',  // red
-        1.0: '#991b1b',  // dark red - high
-      }
+    const maxCount = Math.max(...data.map((p) => p.count));
+
+    if (mode === "heat") {
+      const heatData: Array<[number, number, number]> = data.map((point) => [point.lat, point.lng, point.count / maxCount]);
+
+      const heatLayer = L.heatLayer(heatData, {
+        radius: 40,
+        blur: 34,
+        maxZoom: 15,
+        max: 1.0,
+        minOpacity: 0.42,
+        gradient: {
+          0.0: "#2563eb",
+          0.25: "#22d3ee",
+          0.48: "#fde047",
+          0.72: "#fb923c",
+          1.0: "#dc2626",
+        },
+      });
+
+      heatLayer.addTo(map);
+      heatLayerRef.current = heatLayer;
+    } else {
+      const bubbles = L.layerGroup();
+
+      data.forEach((point) => {
+        const ratio = point.count / maxCount;
+        const radius = 10 + ratio * 26;
+        const fillColor = ratio > 0.7 ? "#dc2626" : ratio > 0.45 ? "#f59e0b" : "#0ea5e9";
+
+        L.circleMarker([point.lat, point.lng], {
+          radius,
+          color: "#0f172a",
+          weight: 1,
+          fillColor,
+          fillOpacity: 0.6,
+          opacity: 0.6,
+        }).addTo(bubbles);
+      });
+
+      bubbles.addTo(map);
+      bubbleLayerRef.current = bubbles;
+    }
+  }, [data, mode]);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current || !selectedPoint) return;
+
+    const map = mapInstanceRef.current;
+
+    if (selectedLayerRef.current) {
+      map.removeLayer(selectedLayerRef.current);
+    }
+
+    const markerLayer = L.layerGroup();
+
+    L.circle([selectedPoint.lat, selectedPoint.lng], {
+      radius: 620,
+      color: "#0f766e",
+      weight: 2,
+      fillColor: "#14b8a6",
+      fillOpacity: 0.16,
+    }).addTo(markerLayer);
+
+    L.circleMarker([selectedPoint.lat, selectedPoint.lng], {
+      radius: 8,
+      color: "#ffffff",
+      weight: 2,
+      fillColor: "#0f766e",
+      fillOpacity: 1,
+    }).addTo(markerLayer);
+
+    markerLayer.addTo(map);
+    selectedLayerRef.current = markerLayer;
+
+    map.flyTo([selectedPoint.lat, selectedPoint.lng], selectedPoint.id === "5" ? 11 : 7, {
+      duration: 0.75,
+      easeLinearity: 0.25,
     });
+  }, [selectedPoint]);
 
-    heatLayer.addTo(mapInstanceRef.current);
-    heatLayerRef.current = heatLayer;
+  useEffect(() => {
+    if (!mapInstanceRef.current || !spotlightPoint) return;
 
-  }, [data]);
+    const map = mapInstanceRef.current;
 
-  return (
-    <div 
-      ref={mapRef} 
-      className="w-full h-full"
-      style={{ minHeight: '100%' }}
-    />
-  );
+    if (spotlightLayerRef.current) {
+      map.removeLayer(spotlightLayerRef.current);
+    }
+
+    const spotlightLayer = L.layerGroup();
+
+    L.circle([spotlightPoint.lat, spotlightPoint.lng], {
+      radius: 1500,
+      color: "#f97316",
+      weight: 1.5,
+      opacity: 0.85,
+      fillColor: "#f97316",
+      fillOpacity: 0.08,
+      dashArray: "8 6",
+    }).addTo(spotlightLayer);
+
+    L.circle([spotlightPoint.lat, spotlightPoint.lng], {
+      radius: 900,
+      color: "#facc15",
+      weight: 1,
+      opacity: 0.9,
+      fillColor: "#facc15",
+      fillOpacity: 0.1,
+    }).addTo(spotlightLayer);
+
+    L.circleMarker([spotlightPoint.lat, spotlightPoint.lng], {
+      radius: 10,
+      color: "#ffffff",
+      weight: 2,
+      fillColor: "#f97316",
+      fillOpacity: 1,
+    })
+      .bindTooltip("📌", {
+        permanent: true,
+        direction: "top",
+        offset: [0, -12],
+        className: "wallboard-map-tooltip",
+      })
+      .addTo(spotlightLayer);
+
+    spotlightLayer.addTo(map);
+    spotlightLayerRef.current = spotlightLayer;
+  }, [spotlightPoint]);
+
+  return <div ref={mapRef} className="w-full h-full" style={{ minHeight: "100%" }} />;
 }
