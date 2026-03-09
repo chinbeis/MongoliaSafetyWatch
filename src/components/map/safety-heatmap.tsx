@@ -214,21 +214,6 @@ export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint }: Saf
       fillOpacity: 0.1,
     }).addTo(spotlightLayer);
 
-    L.circleMarker([spotlightPoint.lat, spotlightPoint.lng], {
-      radius: 10,
-      color: "#ffffff",
-      weight: 2,
-      fillColor: "#f97316",
-      fillOpacity: 1,
-    })
-      .bindTooltip("📌", {
-        permanent: true,
-        direction: "top",
-        offset: [0, -12],
-        className: "wallboard-map-tooltip",
-      })
-      .addTo(spotlightLayer);
-
     spotlightLayer.addTo(map);
     spotlightLayerRef.current = spotlightLayer;
   }, [spotlightPoint]);
