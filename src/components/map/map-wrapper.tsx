@@ -8,10 +8,10 @@ const SafetyHeatmapLazy = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full flex items-center justify-center bg-slate-100">
+      <div className="w-full h-full flex items-center justify-center bg-slate-950/40">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 text-teal-600 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-slate-600 font-medium">Газрын зургийг ачаалж байна...</p>
+          <Loader2 className="w-8 h-8 text-teal-300 animate-spin mx-auto mb-3" />
+          <p className="text-sm text-slate-400 font-medium">Газрын зургийг ачаалж байна...</p>
         </div>
       </div>
     ),
@@ -33,8 +33,17 @@ interface MapWrapperProps {
   mode: "heat" | "bubble";
   selectedPoint?: HeatmapData;
   spotlightPoint?: HeatmapData;
+  userPoint?: { lat: number; lng: number } | null;
 }
 
-export function MapWrapper({ data, mode, selectedPoint, spotlightPoint }: MapWrapperProps) {
-  return <SafetyHeatmapLazy data={data} mode={mode} selectedPoint={selectedPoint} spotlightPoint={spotlightPoint} />;
+export function MapWrapper({ data, mode, selectedPoint, spotlightPoint, userPoint }: MapWrapperProps) {
+  return (
+    <SafetyHeatmapLazy
+      data={data}
+      mode={mode}
+      selectedPoint={selectedPoint}
+      spotlightPoint={spotlightPoint}
+      userPoint={userPoint}
+    />
+  );
 }

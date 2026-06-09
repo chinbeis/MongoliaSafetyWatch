@@ -5,22 +5,22 @@ import { t } from "@/lib/translations";
 
 export default function EducationPage() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen">
       
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
+      <div className="border-b border-white/5">
         <div className="max-w-5xl mx-auto px-5 py-10 sm:py-14">
           <div className="max-w-3xl">
-            <div className="inline-block px-3 py-1.5 bg-green-100 text-green-800 rounded-md text-xs font-semibold mb-4 uppercase tracking-wide">
+            <div className="inline-block px-3 py-1.5 bg-emerald-500/15 text-emerald-300 rounded-md text-xs font-semibold mb-4 uppercase tracking-wide">
               <BookOpen className="w-3 h-3 inline mr-1.5" />
               Боловсрол ба сэргийлэлт
             </div>
             
-            <h1 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-5">
+            <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-5">
               {t.learnPrevention}
             </h1>
             
-            <p className="text-lg text-stone-600 leading-relaxed">
+            <p className="text-lg text-slate-400 leading-relaxed">
               Гэмт хэргээс урьдчилан сэргийлэх, эмзэг бүлгийнхнийг хамгаалах мэдлэгээр олон нийтийг чадваржуулах. 
               Боловсрол бол аюулгүй нийгмийн анхны алхам юм.
             </p>
@@ -34,17 +34,17 @@ export default function EducationPage() {
         <div className="space-y-8">
           
           {/* Child Safety */}
-          <section className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-            <div className="p-6 sm:p-8 border-b border-stone-100 bg-gradient-to-r from-blue-50 to-white">
+          <section className="surface-card rounded-xl overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-white/5 bg-gradient-to-r from-sky-500/10 to-transparent">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center shrink-0">
                   <Shield className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-stone-900 mb-2">
+                  <h2 className="text-2xl font-bold text-slate-50 mb-2">
                     Хүүхдийн аюулгүй байдал
                   </h2>
-                  <p className="text-stone-600">
+                  <p className="text-slate-400">
                     Эцэг эхчүүдэд зориулсан практик зөвлөмж
                   </p>
                 </div>
@@ -52,43 +52,43 @@ export default function EducationPage() {
             </div>
             
             <div className="p-6 sm:p-8">
-              <p className="text-stone-700 mb-6 leading-relaxed">
+              <p className="text-slate-300 mb-6 leading-relaxed">
                 Хүүхдийг хамгаалахад идэвхтэй хяналт, нээлттэй харилцаа шаардлагатай. 
                 Хүүхдэд хил хязгаар, тухгүй байдал мэдэрсэн үед юу хийх талаар зааж өгөөрэй.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-stone-900 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-semibold text-slate-50 flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-sky-400" />
                     Үндсэн зарчмууд
                   </h3>
-                  <ul className="space-y-3 text-sm text-stone-700">
+                  <ul className="space-y-3 text-sm text-slate-300">
                     <li className="flex gap-3">
-                      <span className="text-blue-600 font-bold">•</span>
+                      <span className="text-sky-400 font-bold">•</span>
                       <span><strong>Биеийн аюулгүй байдал:</strong> Хүүхдэд тэдний бие зөвхөн өөрийнх нь гэдгийг заах</span>
                     </li>
                     <li className="flex gap-3">
-                      <span className="text-blue-600 font-bold">•</span>
+                      <span className="text-sky-400 font-bold">•</span>
                       <span><strong>Итгэж болох хүмүүс:</strong> Ярилцаж болох 3-5 итгэлтэй хүнийг тодорхойлоход туслах</span>
                     </li>
                     <li className="flex gap-3">
-                      <span className="text-blue-600 font-bold">•</span>
+                      <span className="text-sky-400 font-bold">•</span>
                       <span><strong>Нууцгүй байх:</strong> Бие махбодын хүрэлцэх эсвэл бэлэгтэй холбоотой нууц хадгалахгүй байх</span>
                     </li>
                     <li className="flex gap-3">
-                      <span className="text-blue-600 font-bold">•</span>
+                      <span className="text-sky-400 font-bold">•</span>
                       <span><strong>Нээлттэй харилцаа:</strong> Өдөр бүр сургуулийн болон найзуудын талаар ярилцах</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                  <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                <div className="bg-sky-500/10 border border-sky-500/20 rounded-lg p-5">
+                  <h3 className="font-semibold text-sky-200 mb-3 flex items-center gap-2">
                     <Smartphone className="w-5 h-5" />
                     Цахим аюулгүй байдал
                   </h3>
-                  <ul className="space-y-2.5 text-sm text-blue-800">
+                  <ul className="space-y-2.5 text-sm text-sky-300/80">
                     <li>• Хүүхдийн гар утас, компьютер ашиглалтыг хянах</li>
                     <li>• Танихгүй хүмүүстэй чатлахгүй байх талаар ярилцах</li>
                     <li>• Хувийн мэдээллээ хуваалцахгүй байх</li>
@@ -100,17 +100,17 @@ export default function EducationPage() {
           </section>
 
           {/* Grooming Prevention */}
-          <section className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-            <div className="p-6 sm:p-8 border-b border-stone-100 bg-gradient-to-r from-rose-50 to-white">
+          <section className="surface-card rounded-xl overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-white/5 bg-gradient-to-r from-rose-500/10 to-transparent">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-rose-600 text-white rounded-lg flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-stone-900 mb-2">
+                  <h2 className="text-2xl font-bold text-slate-50 mb-2">
                     Мэхлэн татах үйлдлээс сэргийлэх
                   </h2>
-                  <p className="text-stone-600">
+                  <p className="text-slate-400">
                     Грүүминг гэж юу вэ, хэрхэн таних вэ?
                   </p>
                 </div>
@@ -118,19 +118,19 @@ export default function EducationPage() {
             </div>
             
             <div className="p-6 sm:p-8">
-              <p className="text-stone-700 mb-6 leading-relaxed">
+              <p className="text-slate-300 mb-6 leading-relaxed">
                 Грүүминг буюу мэхлэн татах гэдэг нь хүүхдийг мөлжих зорилгоор тэдний итгэлийг 
                 олж авах процесс юм. Энэ нь удаан хугацааны туршид тогтвортой явагддаг тул 
                 эрт таних нь маш чухал.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="border-2 border-amber-200 bg-amber-50 rounded-xl p-5">
-                  <h3 className="font-bold text-amber-900 mb-4 flex items-center gap-2">
+                <div className="border border-amber-500/20 bg-amber-500/10 rounded-xl p-5">
+                  <h3 className="font-bold text-amber-200 mb-4 flex items-center gap-2">
                     <AlertTriangle className="w-5 h-5" />
                     Анхааруулах дохионууд
                   </h3>
-                  <ul className="space-y-2.5 text-sm text-amber-900">
+                  <ul className="space-y-2.5 text-sm text-amber-200">
                     <li>• Хэт их бэлэг өгөх, онцгой анхаарал тавих</li>
                     <li>• Хүүхэдтэй ганцаараа байхыг хичээх</li>
                     <li>• Нууцаар тусгаарлах, &quot;манай нууц&quot; гэж хэлэх</li>
@@ -140,12 +140,12 @@ export default function EducationPage() {
                   </ul>
                 </div>
 
-                <div className="border-2 border-green-200 bg-green-50 rounded-xl p-5">
-                  <h3 className="font-bold text-green-900 mb-4 flex items-center gap-2">
+                <div className="border border-emerald-500/20 bg-emerald-500/10 rounded-xl p-5">
+                  <h3 className="font-bold text-emerald-200 mb-4 flex items-center gap-2">
                     <Shield className="w-5 h-5" />
                     Сэргийлэх арга замууд
                   </h3>
-                  <ul className="space-y-2.5 text-sm text-green-900">
+                  <ul className="space-y-2.5 text-sm text-emerald-200">
                     <li>• Цахим орчны идэвхийг тогтмол хянах</li>
                     <li>• Цахим аюулгүй байдлыг ярилцах</li>
                     <li>• Зан төлвийн өөрчлөлтийг ажиглах</li>
@@ -156,9 +156,9 @@ export default function EducationPage() {
                 </div>
               </div>
 
-              <div className="bg-stone-100 border border-stone-200 rounded-lg p-5">
-                <p className="text-sm text-stone-700 leading-relaxed">
-                  <strong className="text-stone-900">Санамж:</strong> Хэрэв танд эсвэл таны хүүхэдэд ийм 
+              <div className="bg-white/5 border border-white/10 rounded-lg p-5">
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  <strong className="text-slate-50">Санамж:</strong> Хэрэв танд эсвэл таны хүүхэдэд ийм 
                   зан үйл гарч байгаа мэт санагдвал даруй мэргэжлийн байгууллагад хандана уу. 
                   Эртэд илрүүлэх нь таны хүүхдийг хамгаалах хамгийн сайн арга юм.
                 </p>
@@ -167,17 +167,17 @@ export default function EducationPage() {
           </section>
 
           {/* Community Safety */}
-          <section className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-            <div className="p-6 sm:p-8 border-b border-stone-100 bg-gradient-to-r from-purple-50 to-white">
+          <section className="surface-card rounded-xl overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-white/5 bg-gradient-to-r from-purple-500/10 to-transparent">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-purple-600 text-white rounded-lg flex items-center justify-center shrink-0">
                   <Users className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-stone-900 mb-2">
+                  <h2 className="text-2xl font-bold text-slate-50 mb-2">
                     Олон нийтийн идэвхжил
                   </h2>
-                  <p className="text-stone-600">
+                  <p className="text-slate-400">
                     Хамтдаа аюулгүй орчин бүрдүүлэх
                   </p>
                 </div>
@@ -185,33 +185,33 @@ export default function EducationPage() {
             </div>
             
             <div className="p-6 sm:p-8">
-              <p className="text-stone-700 mb-6 leading-relaxed">
+              <p className="text-slate-300 mb-6 leading-relaxed">
                 Аюулгүй нийгэм бүрдүүлэх нь зөвхөн хувь хүний асуудал биш юм. 
                 Олон нийт идэвхтэй оролцсоноор илүү найдвартай орчин бүрдүүлэх боломжтой.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-stone-50 rounded-lg p-5 border border-stone-200">
-                  <h4 className="font-semibold text-stone-900 mb-2">Хөршүүдтэйгээ танилцах</h4>
-                  <p className="text-sm text-stone-600">
+                <div className="bg-white/5 rounded-lg p-5 border border-white/10">
+                  <h4 className="font-semibold text-slate-50 mb-2">Хөршүүдтэйгээ танилцах</h4>
+                  <p className="text-sm text-slate-400">
                     Хөрш орчмынхоо хүмүүсийг мэдэх нь аюулгүй байдлыг нэмэгдүүлнэ
                   </p>
                 </div>
-                <div className="bg-stone-50 rounded-lg p-5 border border-stone-200">
-                  <h4 className="font-semibold text-stone-900 mb-2">Сэжигтэй үйлдлийг мэдэгдэх</h4>
-                  <p className="text-sm text-stone-600">
+                <div className="bg-white/5 rounded-lg p-5 border border-white/10">
+                  <h4 className="font-semibold text-slate-50 mb-2">Сэжигтэй үйлдлийг мэдэгдэх</h4>
+                  <p className="text-sm text-slate-400">
                     Ямар нэгэн хачирхалтай зүйл анзаарвал цагдаад мэдэгдэх
                   </p>
                 </div>
-                <div className="bg-stone-50 rounded-lg p-5 border border-stone-200">
-                  <h4 className="font-semibold text-stone-900 mb-2">Гэрэл, камерын системийг суурилуулах</h4>
-                  <p className="text-sm text-stone-600">
+                <div className="bg-white/5 rounded-lg p-5 border border-white/10">
+                  <h4 className="font-semibold text-slate-50 mb-2">Гэрэл, камерын системийг суурилуулах</h4>
+                  <p className="text-sm text-slate-400">
                     Гадна орчны гэрэлтүүлэг нь аюул заналыг бууруулна
                   </p>
                 </div>
-                <div className="bg-stone-50 rounded-lg p-5 border border-stone-200">
-                  <h4 className="font-semibold text-stone-900 mb-2">Хүүхдийн төлөө идэвхтэй байх</h4>
-                  <p className="text-sm text-stone-600">
+                <div className="bg-white/5 rounded-lg p-5 border border-white/10">
+                  <h4 className="font-semibold text-slate-50 mb-2">Хүүхдийн төлөө идэвхтэй байх</h4>
+                  <p className="text-sm text-slate-400">
                     Сургууль, хорооны аюулгүй байдлын хөтөлбөрт оролцох
                   </p>
                 </div>
@@ -220,7 +220,7 @@ export default function EducationPage() {
           </section>
 
           {/* Emergency Action */}
-          <section className="bg-gradient-to-br from-stone-900 to-stone-800 text-white rounded-xl overflow-hidden">
+          <section className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl overflow-hidden">
             <div className="p-6 sm:p-8">
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center shrink-0">
@@ -230,7 +230,7 @@ export default function EducationPage() {
                   <h2 className="text-2xl font-bold mb-2">
                     Сэжиглэж байгаа бол юу хийх вэ?
                   </h2>
-                  <p className="text-stone-300">
+                  <p className="text-slate-300">
                     Яаралтай тохиолдолд авах арга хэмжээ
                   </p>
                 </div>
@@ -243,7 +243,7 @@ export default function EducationPage() {
                   </span>
                   <div>
                     <h4 className="font-bold mb-1">Аюулгүй байдлыг хангах</h4>
-                    <p className="text-sm text-stone-300">
+                    <p className="text-sm text-slate-300">
                       Яаралтай тусламж дуудах: <strong className="text-white">102</strong> (цагдаа) эсвэл <strong className="text-white">108</strong> (түргэн тусламж)
                     </p>
                   </div>
@@ -255,7 +255,7 @@ export default function EducationPage() {
                   </span>
                   <div>
                     <h4 className="font-bold mb-1">Мэргэжлийн байгууллагад хандах</h4>
-                    <p className="text-sm text-stone-300">
+                    <p className="text-sm text-slate-300">
                       Цагдаагийн байгууллага эсвэл Хүүхэд хамгааллын төвд холбогдох
                     </p>
                   </div>
@@ -267,7 +267,7 @@ export default function EducationPage() {
                   </span>
                   <div>
                     <h4 className="font-bold mb-1">Нотлох баримт хадгалах</h4>
-                    <p className="text-sm text-stone-300">
+                    <p className="text-sm text-slate-300">
                       Мессеж, зураг, видео зэрэг нотлох баримтыг устгахгүй хадгалах
                     </p>
                   </div>

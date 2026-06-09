@@ -27,23 +27,23 @@ export default function ReportPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen">
       
       {/* Header */}
-      <div className="bg-white border-b border-stone-200">
+      <div className="border-b border-white/5">
         <div className="max-w-4xl mx-auto px-5 py-10 sm:py-14">
-          <div className="inline-block px-3 py-1.5 bg-amber-100 text-amber-800 rounded-md text-xs font-semibold mb-4 uppercase tracking-wide">
+          <div className="inline-block px-3 py-1.5 bg-amber-500/15 text-amber-300 rounded-md text-xs font-semibold mb-4 uppercase tracking-wide">
             <AlertCircle className="w-3 h-3 inline mr-1.5" />
             Анхааруулга
           </div>
           
-          <h1 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-5">
+          <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-5">
             Мэдээлэх сувгууд
           </h1>
           
-          <div className="bg-amber-50 border-l-4 border-amber-600 p-5 rounded-r-lg">
-            <p className="text-stone-700 leading-relaxed">
-              <strong className="text-stone-900">Анхаар:</strong> Энэхүү платформ нь зөвхөн боловсрол, 
+          <div className="bg-amber-500/10 border-l-4 border-amber-500 p-5 rounded-r-lg">
+            <p className="text-slate-300 leading-relaxed">
+              <strong className="text-slate-50">Анхаар:</strong> Энэхүү платформ нь зөвхөн боловсрол, 
               статистикийн нөөс юм. Бид гэмт хэргийн мэдээллийг хүлээж авдаггүй. 
               Хэрэв танд яаралтай тусламж хэрэгтэй бол доорх албан ёсны дугаарууд руу шууд холбогдоно уу.
             </p>
@@ -55,7 +55,7 @@ export default function ReportPage() {
         
         {/* Emergency numbers */}
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-stone-900 mb-6">
+          <h2 className="text-2xl font-bold text-slate-50 mb-6">
             Яаралтай дугаарууд
           </h2>
           
@@ -63,25 +63,25 @@ export default function ReportPage() {
             {emergencyContacts.map((contact) => (
               <div 
                 key={contact.number} 
-                className="bg-white border border-stone-200 rounded-xl p-6 hover:border-stone-300 hover:shadow-sm transition-all"
+                className="surface-card rounded-xl p-6 hover:border-white/20 transition-all"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
-                    <h3 className="font-bold text-stone-900 mb-1.5">
+                    <h3 className="font-bold text-slate-50 mb-1.5">
                       {contact.title}
                     </h3>
-                    <p className="text-sm text-stone-600 leading-relaxed">
+                    <p className="text-sm text-slate-400 leading-relaxed">
                       {contact.description}
                     </p>
                   </div>
-                  <div className="text-3xl font-bold text-stone-900 shrink-0">
+                  <div className="text-3xl font-bold text-slate-50 shrink-0">
                     {contact.number}
                   </div>
                 </div>
                 
                 <a 
                   href={`tel:${contact.number}`}
-                  className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 bg-stone-900 text-white text-sm font-semibold rounded-lg hover:bg-stone-800 transition-colors"
+                  className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 bg-teal-500 text-slate-950 text-sm font-semibold rounded-lg hover:bg-teal-400 transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   Дуудах
@@ -92,26 +92,26 @@ export default function ReportPage() {
         </div>
 
         {/* Instructions */}
-        <div className="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 mb-8">
-          <h3 className="text-lg font-bold text-stone-900 mb-5">
+        <div className="surface-card rounded-xl p-6 sm:p-8 mb-8">
+          <h3 className="text-lg font-bold text-slate-50 mb-5">
             Мэдээлэх үед юу хэлэх вэ?
           </h3>
           
-          <ol className="space-y-3.5 text-stone-700">
+          <ol className="space-y-3.5 text-slate-300">
             <li className="flex gap-3">
-              <span className="font-bold text-stone-900 shrink-0">1.</span>
+              <span className="font-bold text-slate-50 shrink-0">1.</span>
               <span>Өөрийн аюулгүй байдлыг эхлээд хангах</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-bold text-stone-900 shrink-0">2.</span>
+              <span className="font-bold text-slate-50 shrink-0">2.</span>
               <span>Юу болсон, хаана, хэзээ болсныг тодорхой хэлэх</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-bold text-stone-900 shrink-0">3.</span>
+              <span className="font-bold text-slate-50 shrink-0">3.</span>
               <span>Холбогдох утасны дугаараа үлдээх</span>
             </li>
             <li className="flex gap-3">
-              <span className="font-bold text-stone-900 shrink-0">4.</span>
+              <span className="font-bold text-slate-50 shrink-0">4.</span>
               <span>Нотлох баримт байвал хадгалах (зураг, мессеж, видео)</span>
             </li>
           </ol>
@@ -119,7 +119,7 @@ export default function ReportPage() {
 
         {/* Online resources */}
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-stone-900 mb-5">
+          <h3 className="text-lg font-bold text-slate-50 mb-5">
             Онлайн нөөц
           </h3>
           
@@ -128,64 +128,64 @@ export default function ReportPage() {
               href="https://police.gov.mn"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between p-5 bg-white border border-stone-200 rounded-xl hover:border-stone-300 hover:bg-stone-50 transition-all group"
+              className="flex items-center justify-between p-5 surface-card rounded-xl hover:border-white/20 hover:bg-white/5 transition-all group"
             >
               <div>
-                <div className="font-semibold text-stone-900 mb-1">
+                <div className="font-semibold text-slate-50 mb-1">
                   Цагдаагийн Ерөнхий Газар
                 </div>
-                <div className="text-sm text-stone-600">
+                <div className="text-sm text-slate-400">
                   Албан ёсны вэбсайт болон онлайн мэдээлэх систем
                 </div>
               </div>
-              <ExternalLink className="w-5 h-5 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" />
+              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-400 transition-colors shrink-0" />
             </a>
 
             <a
-              href="#"
-              target="https://www.gov.mn/mn/organization/cfga"
+              href="https://www.gov.mn/mn/organization/cfga"
+              target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between p-5 bg-white border border-stone-200 rounded-xl hover:border-stone-300 hover:bg-stone-50 transition-all group"
+              className="flex items-center justify-between p-5 surface-card rounded-xl hover:border-white/20 hover:bg-white/5 transition-all group"
             >
               <div>
-                <div className="font-semibold text-stone-900 mb-1">
+                <div className="font-semibold text-slate-50 mb-1">
                   Гэр бүл, хүүхэд, залуучуудын хөгжлийн газар
                 </div>
-                <div className="text-sm text-stone-600">
+                <div className="text-sm text-slate-400">
                   Хүүхэд хамгааллын мэдээлэл болон дэмжлэг
                 </div>
               </div>
-              <ExternalLink className="w-5 h-5 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" />
+              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-400 transition-colors shrink-0" />
             </a>
 
             <a
-              href="#"
-              target="https://www.cfga.gov.mn/website/home.aspx"
+              href="https://www.cfga.gov.mn/website/home.aspx"
+              target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between p-5 bg-white border border-stone-200 rounded-xl hover:border-stone-300 hover:bg-stone-50 transition-all group"
+              className="flex items-center justify-between p-5 surface-card rounded-xl hover:border-white/20 hover:bg-white/5 transition-all group"
             >
               <div>
-                <div className="font-semibold text-stone-900 mb-1">
+                <div className="font-semibold text-slate-50 mb-1">
                   Хүүхэд хамгааллын үндэсний төв
                 </div>
-                <div className="text-sm text-stone-600">
+                <div className="text-sm text-slate-400">
                   Мэргэжлийн зөвлөгөө, сэтгэл зүйн дэмжлэг
                 </div>
               </div>
-              <ExternalLink className="w-5 h-5 text-stone-400 group-hover:text-stone-600 transition-colors shrink-0" />
+              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-400 transition-colors shrink-0" />
             </a>
           </div>
         </div>
 
         {/* Privacy info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <div className="bg-sky-500/10 border border-sky-500/20 rounded-xl p-6">
           <div className="flex gap-3 items-start mb-4">
-            <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-            <h4 className="font-semibold text-blue-900">
+            <Info className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
+            <h4 className="font-semibold text-sky-200">
               Нууцлал ба аюулгүй байдал
             </h4>
           </div>
-          <ul className="text-sm text-blue-900 space-y-2 leading-relaxed">
+          <ul className="text-sm text-sky-200 space-y-2 leading-relaxed">
             <li>• Бүх яаралтай дуудлага үнэ төлбөргүй, нууцлалтай</li>
             <li>• Та нэр нууцаар мэдээлж болно</li>
             <li>• Яриа хэлээр харилцах боломжгүй бол текст мессеж илгээх боломжтой</li>

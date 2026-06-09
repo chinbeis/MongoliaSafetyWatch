@@ -1,41 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useEffect, useRef, useState } from "react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
-import "leaflet.heat";
-
-declare module "leaflet" {
-  function heatLayer(latlngs: Array<[number, number, number]>, options?: HeatLayerOptions): HeatLayer;
-
-  interface HeatLayer extends L.Layer {
-    setLatLngs(latlngs: Array<[number, number, number]>): this;
-    addLatLng(latlng: [number, number, number]): this;
-    setOptions(options: HeatLayerOptions): this;
-  }
-
-  interface HeatLayerOptions {
-    minOpacity?: number;
-    maxZoom?: number;
-    max?: number;
-    radius?: number;
-    blur?: number;
-    gradient?: Record<number, string>;
-  }
-}
-
-const DefaultIcon = L.Icon.Default.prototype as unknown as {
-  _getIconUrl?: string;
-  options: L.IconOptions;
-};
-
-delete DefaultIcon._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+const MAP_STYLE = "https://tiles.openfreemap.org/styles/dark";
 
 interface HeatmapData {
   id?: string;
@@ -50,173 +19,206 @@ interface SafetyHeatmapProps {
   mode: "heat" | "bubble";
   selectedPoint?: HeatmapData;
   spotlightPoint?: HeatmapData;
+  userPoint?: { lat: number; lng: number } | null;
 }
 
-export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint }: SafetyHeatmapProps) {
+function toFeatureCollection(points: HeatmapData[]): GeoJSON.FeatureCollection<GeoJSON.Point> {
+  const max = Math.max(...points.map((point) => point.count), 1);
+  return {
+    type: "FeatureCollection",
+    features: points.map((point) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [point.lng, point.lat] },
+      properties: {
+        id: point.id ?? "",
+        name: point.name ?? "",
+        count: point.count,
+        ratio: point.count / max,
+      },
+    })),
+  };
+}
+
+function singlePoint(point?: HeatmapData | { lat: number; lng: number } | null): GeoJSON.FeatureCollection<GeoJSON.Point> {
+  if (!point) {
+    return { type: "FeatureCollection", features: [] };
+  }
+  return {
+    type: "FeatureCollection",
+    features: [{ type: "Feature", geometry: { type: "Point", coordinates: [point.lng, point.lat] }, properties: {} }],
+  };
+}
+
+export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint, userPoint }: SafetyHeatmapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const heatLayerRef = useRef<L.HeatLayer | null>(null);
-  const bubbleLayerRef = useRef<L.LayerGroup | null>(null);
-  const selectedLayerRef = useRef<L.LayerGroup | null>(null);
-  const spotlightLayerRef = useRef<L.LayerGroup | null>(null);
+  const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapRef.current, {
-      center: [47.9188, 106.9173],
-      zoom: 10,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      preferCanvas: true,
-      renderer: L.canvas(),
+    const map = new maplibregl.Map({
+      container: mapRef.current,
+      style: MAP_STYLE,
+      center: [106.9173, 47.9188],
+      zoom: 9,
+      attributionControl: false,
     });
-
     mapInstanceRef.current = map;
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
-      maxZoom: 18,
-      keepBuffer: 2,
-      updateWhenIdle: true,
-      updateWhenZooming: false,
-    }).addTo(map);
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(new maplibregl.AttributionControl({ compact: true }));
+
+    map.on("load", () => {
+      map.addSource("regions", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addSource("selected", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addSource("spotlight", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addSource("user", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+
+      map.addLayer({
+        id: "regions-heat",
+        type: "heatmap",
+        source: "regions",
+        paint: {
+          "heatmap-weight": ["interpolate", ["linear"], ["get", "ratio"], 0, 0.1, 1, 1],
+          "heatmap-intensity": 1.1,
+          "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 5, 28, 12, 60],
+          "heatmap-opacity": 0.85,
+          "heatmap-color": [
+            "interpolate",
+            ["linear"],
+            ["heatmap-density"],
+            0, "rgba(37,99,235,0)",
+            0.2, "#2563eb",
+            0.4, "#22d3ee",
+            0.6, "#fde047",
+            0.8, "#fb923c",
+            1, "#ef4444",
+          ],
+        },
+      });
+
+      map.addLayer({
+        id: "regions-bubble",
+        type: "circle",
+        source: "regions",
+        layout: { visibility: "none" },
+        paint: {
+          "circle-radius": ["+", 6, ["*", ["get", "ratio"], 28]],
+          "circle-color": [
+            "step",
+            ["get", "ratio"],
+            "#0ea5e9",
+            0.45, "#f59e0b",
+            0.7, "#ef4444",
+          ],
+          "circle-opacity": 0.7,
+          "circle-stroke-color": "#070b12",
+          "circle-stroke-width": 1,
+        },
+      });
+
+      map.addLayer({
+        id: "spotlight-glow",
+        type: "circle",
+        source: "spotlight",
+        paint: {
+          "circle-radius": 26,
+          "circle-color": "#f59e0b",
+          "circle-opacity": 0.16,
+          "circle-stroke-color": "#fbbf24",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-opacity": 0.7,
+        },
+      });
+
+      map.addLayer({
+        id: "selected-glow",
+        type: "circle",
+        source: "selected",
+        paint: {
+          "circle-radius": 22,
+          "circle-color": "#2dd4bf",
+          "circle-opacity": 0.22,
+        },
+      });
+      map.addLayer({
+        id: "selected-dot",
+        type: "circle",
+        source: "selected",
+        paint: {
+          "circle-radius": 6,
+          "circle-color": "#2dd4bf",
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 2,
+        },
+      });
+
+      map.addLayer({
+        id: "user-glow",
+        type: "circle",
+        source: "user",
+        paint: {
+          "circle-radius": 18,
+          "circle-color": "#3b82f6",
+          "circle-opacity": 0.2,
+        },
+      });
+      map.addLayer({
+        id: "user-dot",
+        type: "circle",
+        source: "user",
+        paint: {
+          "circle-radius": 6,
+          "circle-color": "#3b82f6",
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 2,
+        },
+      });
+
+      setReady(true);
+    });
 
     return () => {
       map.remove();
       mapInstanceRef.current = null;
+      setReady(false);
     };
   }, []);
 
   useEffect(() => {
-    if (!mapInstanceRef.current || !data.length) return;
-
     const map = mapInstanceRef.current;
-
-    if (heatLayerRef.current) {
-      map.removeLayer(heatLayerRef.current);
-      heatLayerRef.current = null;
-    }
-
-    if (bubbleLayerRef.current) {
-      map.removeLayer(bubbleLayerRef.current);
-      bubbleLayerRef.current = null;
-    }
-
-    const maxCount = Math.max(...data.map((p) => p.count));
-
-    if (mode === "heat") {
-      const heatData: Array<[number, number, number]> = data.map((point) => [point.lat, point.lng, point.count / maxCount]);
-
-      const heatLayer = L.heatLayer(heatData, {
-        radius: 40,
-        blur: 34,
-        maxZoom: 15,
-        max: 1.0,
-        minOpacity: 0.42,
-        gradient: {
-          0.0: "#2563eb",
-          0.25: "#22d3ee",
-          0.48: "#fde047",
-          0.72: "#fb923c",
-          1.0: "#dc2626",
-        },
-      });
-
-      heatLayer.addTo(map);
-      heatLayerRef.current = heatLayer;
-    } else {
-      const bubbles = L.layerGroup();
-
-      data.forEach((point) => {
-        const ratio = point.count / maxCount;
-        const radius = 10 + ratio * 26;
-        const fillColor = ratio > 0.7 ? "#dc2626" : ratio > 0.45 ? "#f59e0b" : "#0ea5e9";
-
-        L.circleMarker([point.lat, point.lng], {
-          radius,
-          color: "#0f172a",
-          weight: 1,
-          fillColor,
-          fillOpacity: 0.6,
-          opacity: 0.6,
-        }).addTo(bubbles);
-      });
-
-      bubbles.addTo(map);
-      bubbleLayerRef.current = bubbles;
-    }
-  }, [data, mode]);
+    if (!ready || !map) return;
+    (map.getSource("regions") as maplibregl.GeoJSONSource | undefined)?.setData(toFeatureCollection(data));
+    map.setLayoutProperty("regions-heat", "visibility", mode === "heat" ? "visible" : "none");
+    map.setLayoutProperty("regions-bubble", "visibility", mode === "bubble" ? "visible" : "none");
+  }, [ready, data, mode]);
 
   useEffect(() => {
-    if (!mapInstanceRef.current || !selectedPoint) return;
-
     const map = mapInstanceRef.current;
-
-    if (selectedLayerRef.current) {
-      map.removeLayer(selectedLayerRef.current);
+    if (!ready || !map) return;
+    (map.getSource("selected") as maplibregl.GeoJSONSource | undefined)?.setData(singlePoint(selectedPoint));
+    if (selectedPoint) {
+      map.flyTo({
+        center: [selectedPoint.lng, selectedPoint.lat],
+        zoom: selectedPoint.id === "5" ? 10 : 6.5,
+        speed: 1.1,
+        essential: true,
+      });
     }
-
-    const markerLayer = L.layerGroup();
-
-    L.circle([selectedPoint.lat, selectedPoint.lng], {
-      radius: 620,
-      color: "#0f766e",
-      weight: 2,
-      fillColor: "#14b8a6",
-      fillOpacity: 0.16,
-    }).addTo(markerLayer);
-
-    L.circleMarker([selectedPoint.lat, selectedPoint.lng], {
-      radius: 8,
-      color: "#ffffff",
-      weight: 2,
-      fillColor: "#0f766e",
-      fillOpacity: 1,
-    }).addTo(markerLayer);
-
-    markerLayer.addTo(map);
-    selectedLayerRef.current = markerLayer;
-
-    map.flyTo([selectedPoint.lat, selectedPoint.lng], selectedPoint.id === "5" ? 11 : 7, {
-      duration: 0.75,
-      easeLinearity: 0.25,
-    });
-  }, [selectedPoint]);
+  }, [ready, selectedPoint]);
 
   useEffect(() => {
-    if (!mapInstanceRef.current || !spotlightPoint) return;
-
     const map = mapInstanceRef.current;
+    if (!ready || !map) return;
+    (map.getSource("spotlight") as maplibregl.GeoJSONSource | undefined)?.setData(singlePoint(spotlightPoint));
+  }, [ready, spotlightPoint]);
 
-    if (spotlightLayerRef.current) {
-      map.removeLayer(spotlightLayerRef.current);
-    }
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!ready || !map) return;
+    (map.getSource("user") as maplibregl.GeoJSONSource | undefined)?.setData(singlePoint(userPoint));
+  }, [ready, userPoint]);
 
-    const spotlightLayer = L.layerGroup();
-
-    L.circle([spotlightPoint.lat, spotlightPoint.lng], {
-      radius: 1500,
-      color: "#f97316",
-      weight: 1.5,
-      opacity: 0.85,
-      fillColor: "#f97316",
-      fillOpacity: 0.08,
-      dashArray: "8 6",
-    }).addTo(spotlightLayer);
-
-    L.circle([spotlightPoint.lat, spotlightPoint.lng], {
-      radius: 900,
-      color: "#facc15",
-      weight: 1,
-      opacity: 0.9,
-      fillColor: "#facc15",
-      fillOpacity: 0.1,
-    }).addTo(spotlightLayer);
-
-    spotlightLayer.addTo(map);
-    spotlightLayerRef.current = spotlightLayer;
-  }, [spotlightPoint]);
-
-  return <div ref={mapRef} className="w-full h-full" style={{ minHeight: "100%" }} />;
+  return <div ref={mapRef} className="h-full w-full" style={{ minHeight: "100%" }} />;
 }

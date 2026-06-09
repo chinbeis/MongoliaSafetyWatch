@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, integer, timestamp, date, pgEnum, doublePrecision, text } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, integer, timestamp, date, pgEnum, doublePrecision, text, boolean } from "drizzle-orm/pg-core";
 
 export const crimeCategoryEnum = pgEnum("crime_category", [
   "theft",
@@ -46,5 +46,7 @@ export const communityReports = pgTable("community_reports", {
   latitude: doublePrecision("latitude").notNull(),
   longitude: doublePrecision("longitude").notNull(),
   radiusMeters: integer("radius_meters").notNull(),
+  flagCount: integer("flag_count").default(0).notNull(),
+  hidden: boolean("hidden").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
