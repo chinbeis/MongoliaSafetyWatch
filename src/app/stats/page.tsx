@@ -33,11 +33,17 @@ import {
   getNationalTotal,
   getNationalTrend,
   getRegionYearCounts,
+  getYearDataMonth,
+  isPartialYear,
 } from "@/lib/crime-snapshot";
 
 const years = getCrimeYears();
 const indicators = getCrimeIndicators();
 const snapshot = getCrimeSnapshot();
+
+function yearOptionLabel(year: number) {
+  return isPartialYear(year) ? `${year} (${getYearDataMonth(year)} байдлаар)` : String(year);
+}
 
 export default function StatsPage() {
   const [selectedIndicator, setSelectedIndicator] = useState(indicators[0]?.code ?? "");
@@ -51,6 +57,8 @@ export default function StatsPage() {
   const delta = nationalTotal - previousTotal;
   const deltaPercent = previousTotal > 0 ? (delta / previousTotal) * 100 : 0;
   const topRegion = regionalData[0];
+  const selectedYearMonth = getYearDataMonth(selectedYear);
+  const selectedYearPartial = isPartialYear(selectedYear);
 
   return (
     <div className="min-h-screen pb-12">
@@ -100,7 +108,7 @@ export default function StatsPage() {
               onChange={(value) => setSelectedYear(Number(value))}
               options={years.map((year) => ({
                 value: String(year),
-                label: String(year),
+                label: yearOptionLabel(year),
               }))}
             />
           </div>
@@ -108,16 +116,20 @@ export default function StatsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-5 py-8">
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
+        <div className="anim-rise grid md:grid-cols-3 gap-4 mb-8">
           <StatCard
-            label={`${selectedYear} улсын дүн`}
+            label={`${selectedYear} улсын дүн${selectedYearPartial ? ` (${selectedYearMonth} байдлаар)` : ""}`}
             value={nationalTotal.toLocaleString()}
             hint={indicators.find((indicator) => indicator.code === selectedIndicator)?.name ?? ""}
           />
           <StatCard
             label="Өмнөх жилтэй харьцуулахад"
             value={`${deltaPercent >= 0 ? "+" : ""}${deltaPercent.toFixed(1)}%`}
-            hint={`${delta >= 0 ? "+" : ""}${delta.toLocaleString()} өөрчлөлт`}
+            hint={
+              selectedYearPartial
+                ? `Бүтэн бус жил: ${selectedYearMonth} хүртэлх дүнг өмнөх бүтэн жилтэй харьцуулсан`
+                : `${delta >= 0 ? "+" : ""}${delta.toLocaleString()} өөрчлөлт`
+            }
             icon={<TrendingDown className="w-4 h-4 text-amber-400" />}
           />
           <StatCard
@@ -128,7 +140,7 @@ export default function StatsPage() {
           />
         </div>
 
-        <div className="surface-card rounded-2xl p-6 mb-6">
+        <div className="surface-card anim-rise anim-d-1 rounded-2xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="h-10 w-10 rounded-xl bg-teal-500/15 text-teal-300 flex items-center justify-center">
               <Calendar className="w-5 h-5" />
@@ -136,7 +148,10 @@ export default function StatsPage() {
             <div>
               <h2 className="text-xl font-bold text-slate-50">Жилийн чиг хандлага</h2>
               <p className="text-sm text-slate-400">
-                Сонгосон үзүүлэлтийн улсын хэмжээний 12-р сарын өссөн дүн
+                Сонгосон үзүүлэлтийн улсын хэмжээний жил бүрийн өссөн дүн
+                {isPartialYear(getLatestCrimeYear())
+                  ? ` (${getLatestCrimeYear()} он ${getYearDataMonth(getLatestCrimeYear())} байдлаар)`
+                  : ""}
               </p>
             </div>
           </div>
@@ -170,7 +185,7 @@ export default function StatsPage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6 mb-6">
+        <div className="anim-rise anim-d-2 grid lg:grid-cols-2 gap-6 mb-6">
           <div className="surface-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-5">
               <div className="h-10 w-10 rounded-xl bg-sky-500/15 text-sky-300 flex items-center justify-center">
@@ -179,8 +194,8 @@ export default function StatsPage() {
               <div>
                 <h2 className="text-xl font-bold text-slate-50">Үзүүлэлтүүдийн харьцуулалт</h2>
                 <p className="text-sm text-slate-400">
-                  {selectedYear} оны 12-р сарын өссөн дүн. Эдгээр үзүүлэлтүүд нь хоорондоо давхцаж
-                  болно.
+                  {selectedYear} оны {selectedYearMonth} хүртэлх өссөн дүн. Эдгээр үзүүлэлтүүд нь
+                  хоорондоо давхцаж болно.
                 </p>
               </div>
             </div>

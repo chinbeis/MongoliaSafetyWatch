@@ -40,6 +40,18 @@ export function getLatestCrimeYear() {
   return getCrimeYears()[0];
 }
 
+/** "YYYY-MM" the year's figures run through — cumulative data, so a
+ *  non-December month means the year is partial (year-to-date). */
+export function getYearDataMonth(year: number) {
+  const row = snapshot.rows.find((item) => item.year === year);
+  return row?.month ?? null;
+}
+
+export function isPartialYear(year: number) {
+  const month = getYearDataMonth(year);
+  return month !== null && !month.endsWith("-12");
+}
+
 export function getNationalTrend(indicatorCode: string) {
   return getCrimeYears()
     .slice()

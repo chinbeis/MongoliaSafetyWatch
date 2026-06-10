@@ -36,17 +36,52 @@ const REGION_COORDINATES = {
 };
 
 const REGION_CODES = Object.keys(REGION_COORDINATES);
-const YEAR_MONTH_CODES = [
-  { year: 2025, monthCode: "1", monthLabel: "2025-12" },
-  { year: 2024, monthCode: "13", monthLabel: "2024-12" },
-  { year: 2023, monthCode: "25", monthLabel: "2023-12" },
-  { year: 2022, monthCode: "37", monthLabel: "2022-12" },
-  { year: 2021, monthCode: "49", monthLabel: "2021-12" },
-  { year: 2020, monthCode: "61", monthLabel: "2020-12" },
-  { year: 2019, monthCode: "73", monthLabel: "2019-12" },
-];
+const YEAR_LIMIT = 8;
+
+/**
+ * The "Сар" dimension is a rolling index (code 0 = newest month), so codes
+ * shift every time 1212.mn publishes a new month. Resolve them from the table
+ * metadata instead of hardcoding: the data is cumulative (өссөн дүн), so the
+ * latest available month of each year is that year's running total.
+ */
+async function resolveYearMonthCodes() {
+  const response = await fetch(API_URL);
+  if (!response.ok) {
+    throw new Error(`1212.mn metadata request failed with ${response.status}`);
+  }
+
+  const metadata = await response.json();
+  const monthVariable = metadata.variables.find((variable) => variable.code === "Сар");
+  if (!monthVariable) {
+    throw new Error("1212.mn table has no 'Сар' dimension");
+  }
+
+  const latestByYear = new Map();
+  monthVariable.values.forEach((code, index) => {
+    const label = String(monthVariable.valueTexts[index]).trim();
+    const match = label.match(/^(\d{4})-(\d{2})$/);
+    if (!match) {
+      return;
+    }
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const current = latestByYear.get(year);
+    if (!current || month > current.month) {
+      latestByYear.set(year, { year, month, monthCode: code, monthLabel: label });
+    }
+  });
+
+  return Array.from(latestByYear.values())
+    .sort((a, b) => b.year - a.year)
+    .slice(0, YEAR_LIMIT);
+}
 
 async function main() {
+  const yearMonthCodes = await resolveYearMonthCodes();
+  console.log(
+    "Resolved months:",
+    yearMonthCodes.map((entry) => `${entry.year}→${entry.monthLabel}`).join(", ")
+  );
   const response = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -72,7 +107,7 @@ async function main() {
           code: "Сар",
           selection: {
             filter: "item",
-            values: YEAR_MONTH_CODES.map((entry) => entry.monthCode),
+            values: yearMonthCodes.map((entry) => entry.monthCode),
           },
         },
       ],
@@ -90,7 +125,7 @@ async function main() {
   const indicators = getOrderedCategoryEntries(dataset.dimension["Үзүүлэлт"]);
   const regions = getOrderedCategoryEntries(dataset.dimension["Бүс"]);
   const months = getOrderedCategoryEntries(dataset.dimension["Сар"]);
-  const monthMeta = new Map(YEAR_MONTH_CODES.map((entry) => [entry.monthCode, entry]));
+  const monthMeta = new Map(yearMonthCodes.map((entry) => [entry.monthCode, entry]));
   const rows = [];
 
   let cursor = 0;

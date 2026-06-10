@@ -140,8 +140,17 @@ export function CommunityReportMap({
     });
     mapInstanceRef.current = map;
 
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.addControl(new maplibregl.AttributionControl({ compact: true }));
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
+
+    map.getCanvas().style.opacity = "0";
+    map.getCanvas().style.transition = "opacity 0.8s ease";
+    const revealCanvas = () => {
+      map.getCanvas().style.opacity = "1";
+    };
+    map.once("load", revealCanvas);
+    // Safety net: never leave the canvas hidden if "load" is delayed.
+    const revealTimer = setTimeout(revealCanvas, 2500);
 
     map.on("load", () => {
       map.addSource("report-areas", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -229,6 +238,7 @@ export function CommunityReportMap({
     });
 
     return () => {
+      clearTimeout(revealTimer);
       map.remove();
       mapInstanceRef.current = null;
       setReady(false);
@@ -248,7 +258,14 @@ export function CommunityReportMap({
     (map.getSource("draft-area") as maplibregl.GeoJSONSource | undefined)?.setData(draftArea(draftPoint, draftRadius));
     (map.getSource("draft-point") as maplibregl.GeoJSONSource | undefined)?.setData(draftPointFc(draftPoint));
     if (draftPoint) {
-      map.flyTo({ center: [draftPoint.longitude, draftPoint.latitude], zoom: Math.max(map.getZoom(), 12), speed: 1, essential: true });
+      const railPadding = window.innerWidth >= 1024 ? { left: 340, right: 300 } : { left: 0, right: 0 };
+      map.flyTo({
+        center: [draftPoint.longitude, draftPoint.latitude],
+        zoom: Math.max(map.getZoom(), 12),
+        speed: 1,
+        padding: { top: 60, bottom: 60, ...railPadding },
+        essential: true,
+      });
     }
   }, [ready, draftPoint, draftRadius]);
 

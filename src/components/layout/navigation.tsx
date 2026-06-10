@@ -115,17 +115,9 @@ function MobileNavLink({ href, label, active, onClick }: { href: string; label: 
 export function Footer() {
   const pathname = usePathname();
 
-  if (pathname === "/map") {
-    return (
-      <footer className="border-t border-white/5 bg-slate-950/70 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-5">
-          <div className="flex h-10 items-center justify-between gap-3 text-[10px] uppercase tracking-[0.14em] text-slate-500">
-            <span>Дэлгэцийн харагдац</span>
-            <span className="hidden sm:block">Олон нийтийн аюулгүй байдлын тойм</span>
-          </div>
-        </div>
-      </footer>
-    );
+  // Monitor pages render their own status bar.
+  if (pathname === "/map" || pathname === "/community-map") {
+    return null;
   }
 
   return (

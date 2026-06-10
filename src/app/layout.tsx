@@ -1,4 +1,4 @@
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Navbar, Footer } from "@/components/layout/navigation";
 
@@ -10,6 +10,11 @@ const inter = Inter({
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin", "cyrillic"],
 });
 
 export const metadata = {
@@ -25,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="mn">
       <body
-        className={`${inter.variable} ${plusJakarta.variable} antialiased min-h-screen flex flex-col bg-[#070b12] text-slate-100 font-sans`}
+        className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} antialiased min-h-screen flex flex-col bg-[#070b12] text-slate-100 font-sans`}
       >
         <Navbar />
         <main className="flex-grow min-h-0">{children}</main>

@@ -60,9 +60,12 @@ src/app/            App Router pages (most are "use client") + /api routes
   about|terms|privacy|data-sources/   Static info pages
   api/              stats/*, community-reports/*, data-sources
 src/components/
-  layout/navigation.tsx     Navbar + Footer (Footer has a special compact mode on /map)
-  map/                      Leaflet wrappers (dynamic import, SSR off)
+  layout/navigation.tsx     Navbar + Footer (Footer returns null on /map and /community-map —
+                            those pages render their own monitor status bar)
+  map/                      MapLibre wrappers (dynamic import, SSR off)
   ui/disclaimer.tsx         Reusable legal/info disclaimer
+  ui/monitor.tsx            MonitorPanel / LiveBadge / LiveClock (wallboard chrome)
+  ui/animated-number.tsx    Count-up number (respects prefers-reduced-motion)
 src/lib/            crime-snapshot.ts, translations.ts, community-captcha.ts
 src/db/             schema.ts, index.ts, seed.ts
 ```
@@ -72,20 +75,29 @@ src/db/             schema.ts, index.ts, seed.ts
 - **Language:** all user-facing copy is **Mongolian (Cyrillic)**. UI strings live in
   `src/lib/translations.ts` as the `t` object — add new strings there, don't hardcode. Keep copy
   calm and informational, never fear-mongering (this is a stated product principle).
-- **Design system:** slate neutrals + teal accent (`--accent: #0f766e`), glassy `.surface-card`
-  utility, rounded-2xl panels, lucide icons. Note: `report/page.tsx` currently uses a `stone` palette
-  and is visually out of sync with the rest of the site.
+- **Design system:** slate neutrals + teal accent, glassy `.surface-card` utility, rounded-2xl
+  panels, lucide icons. `/map` and `/community-map` use a full-viewport "monitor" layout: the map
+  fills the stage, `.monitor-panel` glass rails float over it, with a bottom status bar.
+  Motion utilities (`.anim-rise`, `.anim-slide-left/right`, `.hover-lift`, `.live-dot`,
+  `.mono-data`) live in `globals.css`; all animations respect `prefers-reduced-motion`.
+  Note: `report/page.tsx` currently uses a `stone` palette and is visually out of sync.
 - **Maps must be client-only:** Leaflet touches `window`, so map components are dynamically imported
   with `ssr: false` via the wrappers in `src/components/map/`.
 - **Privacy/safety review:** any change touching community reports, the crime snapshot, or anything
   rendering data must preserve aggregation and never expose PII or exact locations. When rendering
   user-supplied strings into Leaflet popups, escape them (see `escapeHtml` in `community-report-map.tsx`).
 
+## Data freshness
+
+`scripts/import-1212-crime.mjs` resolves the 1212.mn month codes dynamically from table metadata
+(the "Сар" dimension is a rolling index — never hardcode codes). Data is cumulative (өссөн дүн);
+the importer takes the latest available month per year, so the newest year can be partial —
+`isPartialYear()` / `getYearDataMonth()` in `crime-snapshot.ts` are used to label it in the UI.
+
 ## Known rough edges (as of this writing)
 
 - `report/page.tsx` — two "online resource" links are broken: they use `target="https://…"` with
   `href="#"` instead of putting the URL in `href`.
-- `map/page.tsx` hardcodes the Ulaanbaatar hotspot id (`"5"`).
 - `about/page.tsx` has a placeholder contact email (`info@example.mn`).
 - API routes set no `Cache-Control` headers.
 - No rate limiting on community-report POSTs beyond the CAPTCHA.

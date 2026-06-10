@@ -66,8 +66,17 @@ export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint, userP
     });
     mapInstanceRef.current = map;
 
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.addControl(new maplibregl.AttributionControl({ compact: true }));
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
+
+    map.getCanvas().style.opacity = "0";
+    map.getCanvas().style.transition = "opacity 0.8s ease";
+    const revealCanvas = () => {
+      map.getCanvas().style.opacity = "1";
+    };
+    map.once("load", revealCanvas);
+    // Safety net: never leave the canvas hidden if "load" is delayed.
+    const revealTimer = setTimeout(revealCanvas, 2500);
 
     map.on("load", () => {
       map.addSource("regions", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -180,6 +189,7 @@ export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint, userP
     });
 
     return () => {
+      clearTimeout(revealTimer);
       map.remove();
       mapInstanceRef.current = null;
       setReady(false);
@@ -199,10 +209,14 @@ export function SafetyHeatmap({ data, mode, selectedPoint, spotlightPoint, userP
     if (!ready || !map) return;
     (map.getSource("selected") as maplibregl.GeoJSONSource | undefined)?.setData(singlePoint(selectedPoint));
     if (selectedPoint) {
+      // The filter rail overlays the left edge on desktop; pad so the
+      // selected region lands in the visible part of the stage.
+      const railPadding = window.innerWidth >= 1024 ? { left: 340, right: 280 } : { left: 0, right: 0 };
       map.flyTo({
         center: [selectedPoint.lng, selectedPoint.lat],
         zoom: selectedPoint.id === "5" ? 10 : 6.5,
         speed: 1.1,
+        padding: { top: 60, bottom: 60, ...railPadding },
         essential: true,
       });
     }
