@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { communityReports } from "@/db/schema";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
@@ -23,7 +23,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
-    const [updated] = await db
+    const [updated] = await getDb()
       .update(communityReports)
       .set({ flagCount: sql`${communityReports.flagCount} + 1` })
       .where(eq(communityReports.id, id))
@@ -35,7 +35,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const shouldHide = updated.flagCount >= FLAG_THRESHOLD;
     if (shouldHide && !updated.hidden) {
-      await db
+      await getDb()
         .update(communityReports)
         .set({ hidden: true })
         .where(eq(communityReports.id, id));

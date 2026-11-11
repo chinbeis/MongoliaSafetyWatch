@@ -1,42 +1,34 @@
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import * as schema from './schema';
+import "server-only";
+import { neon } from "@neondatabase/serverless";
+import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
+import { getServerEnv } from "@/lib/env";
+import * as schema from "./schema";
 
-const databaseUrl = normalizeDatabaseUrl(process.env.DATABASE_URL);
+export type Database = NeonHttpDatabase<typeof schema>;
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set");
+let instance: Database | null = null;
+
+export class DatabaseNotConfiguredError extends Error {
+  constructor() {
+    super("DATABASE_URL is not set");
+    this.name = "DatabaseNotConfiguredError";
+  }
 }
 
-const sql = neon(databaseUrl);
-
-export const db = drizzle(sql, { schema });
-
-function normalizeDatabaseUrl(value: string | undefined) {
-  if (!value) {
-    return undefined;
+/**
+ * Lazily constructs the Drizzle client on first use, so importing this module
+ * never throws — `next build` and CI work without a DATABASE_URL.
+ */
+export function getDb(): Database {
+  if (instance) {
+    return instance;
   }
 
-  const trimmed = value.trim();
-
-  if (trimmed.startsWith("postgres")) {
-    return trimmed;
+  const { databaseUrl } = getServerEnv();
+  if (!databaseUrl) {
+    throw new DatabaseNotConfiguredError();
   }
 
-  const singleQuoted = trimmed.match(/psql\s+'([^']+)'/i);
-  if (singleQuoted) {
-    return singleQuoted[1];
-  }
-
-  const doubleQuoted = trimmed.match(/psql\s+"([^"]+)"/i);
-  if (doubleQuoted) {
-    return doubleQuoted[1];
-  }
-
-  const urlMatch = trimmed.match(/(postgres(?:ql)?:\/\/\S+)/i);
-  if (urlMatch) {
-    return urlMatch[1];
-  }
-
-  return trimmed;
+  instance = drizzle(neon(databaseUrl), { schema });
+  return instance;
 }

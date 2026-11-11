@@ -7,39 +7,43 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "import:1212": "node scripts/import-1212-crime.mjs",
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "@types/pg": "^8.16.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
-    "leaflet": "^1.9.4",
-    "leaflet.heat": "^0.2.0",
     "lucide-react": "^0.563.0",
     "maplibre-gl": "^5.17.0",
-    "next": "16.1.6",
-    "pg": "^8.18.0",
+    "next": "16.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
-    "tailwind-merge": "^3.4.0"
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/leaflet": "^1.9.21",
-    "@types/leaflet.heat": "^0.2.5",
-    "@types/node": "^20",
+    "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.24",
     "babel-plugin-react-compiler": "1.0.0",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.4.6",
     "postcss": "^8.5.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.28.2"
 }

@@ -1,6 +1,6 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
+import { getServerEnv } from "@/lib/env";
 
-const CAPTCHA_SECRET = process.env.COMMUNITY_CAPTCHA_SECRET ?? "dev-community-captcha-secret";
 const CAPTCHA_TTL_MS = 1000 * 60 * 10;
 
 interface CaptchaPayload {
@@ -11,8 +11,8 @@ interface CaptchaPayload {
 
 export function createCaptchaChallenge() {
   const payload: CaptchaPayload = {
-    left: randomInt(2, 9),
-    right: randomInt(1, 8),
+    left: randomInt(2, 10),
+    right: randomInt(1, 9),
     issuedAt: Date.now(),
   };
 
@@ -47,9 +47,5 @@ export function verifyCaptchaToken(token: string, answer: number) {
 }
 
 function sign(value: string) {
-  return createHmac("sha256", CAPTCHA_SECRET).update(value).digest("base64url");
-}
-
-function randomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return createHmac("sha256", getServerEnv().communityCaptchaSecret).update(value).digest("base64url");
 }

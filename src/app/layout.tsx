@@ -4,17 +4,20 @@ import { Navbar, Footer } from "@/components/layout/navigation";
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
 });
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
+  // Plus Jakarta Sans has no Cyrillic glyphs (its "cyrillic-ext" slice only
+  // contains ₴), so Mongolian text falls through to Inter — which is why Inter
+  // must load both "cyrillic" and "cyrillic-ext" (ө ү Ө Ү live in the latter).
   subsets: ["latin"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
-  subsets: ["latin", "cyrillic"],
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
 });
 
 export const metadata = {

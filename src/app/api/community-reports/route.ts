@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { communityReports } from "@/db/schema";
 import { verifyCaptchaToken } from "@/lib/community-captcha";
 import { getCategoryLabel } from "@/lib/community-categories";
@@ -11,7 +11,7 @@ const POST_WINDOW_MS = 1000 * 60 * 10;
 
 export async function GET() {
   try {
-    const reports = await db
+    const reports = await getDb()
       .select()
       .from(communityReports)
       .where(eq(communityReports.hidden, false))
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Captcha verification failed" }, { status: 400 });
     }
 
-    const [report] = await db
+    const [report] = await getDb()
       .insert(communityReports)
       .values({
         category: category as typeof communityReports.$inferInsert.category,
