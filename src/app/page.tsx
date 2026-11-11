@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Shield,
@@ -9,22 +8,57 @@ import {
   ArrowRight,
   AlertTriangle,
   Radar,
-  Activity,
+  Database,
   Globe2,
   Users,
 } from "lucide-react";
 import { Disclaimer } from "@/components/ui/disclaimer";
-import { AnimatedNumber } from "@/components/ui/animated-number";
+import {
+  NATIONAL_CODE,
+  TOTAL_MEASURE,
+  describeComparison,
+  formatCell,
+  formatChange,
+  formatMonthLabel,
+  getLikeForLike,
+  getMapRegions,
+  getMeta,
+  getMonthsAvailable,
+} from "@/lib/crime-snapshot";
+import { countPublicReports } from "@/lib/community-reports";
 import { t } from "@/lib/translations";
 
-const quickStats = [
-  { label: "Сүүлийн 30 хоногийн нэгтгэл", value: 1284, delta: "+3.1%" },
-  { label: "Илүү анхаарах бүс", value: 16, delta: "-2" },
-  { label: "Хамрагдсан аймаг, дүүрэг", value: 21, delta: "100%" },
-  { label: "Шинэчлэгдсэн зөвлөмж", value: 42, delta: "Саяхан" },
-];
+export const metadata: Metadata = {
+  title: { absolute: `${t.title} – Монгол Улс` },
+  description: t.homePage.description,
+};
 
-export default function HomePage() {
+// The community-pin count is refreshed at most every 5 minutes; everything
+// else on this page is static data from the build-time snapshot.
+export const revalidate = 300;
+
+export default async function HomePage() {
+  const meta = getMeta();
+  const national = getLikeForLike(TOTAL_MEASURE, NATIONAL_CODE, meta.latestYear);
+  const months = getMonthsAvailable(meta.latestYear);
+  const pins = await countPublicReports();
+
+  const quickStats = [
+    {
+      label: months === 12 ? `${meta.latestYear} онд бүртгэгдсэн гэмт хэрэг` : `${meta.latestYear} оны 1–${months}-р сард бүртгэгдсэн гэмт хэрэг`,
+      value: formatCell(national.current),
+      note: t.homePage.national,
+    },
+    {
+      label: t.homePage.change,
+      value: formatChange(national.changePercent),
+      note: describeComparison(national),
+    },
+    { label: t.homePage.dataThrough, value: meta.dataThrough, note: formatMonthLabel(meta.dataThrough) },
+    { label: t.homePage.regionsCovered, value: String(getMapRegions().length), note: t.homePage.regionsNote },
+    ...(pins != null ? [{ label: t.homePage.communityPins, value: pins.toLocaleString("mn-MN"), note: t.homePage.communityPinsNote }] : []),
+  ];
+
   return (
     <div className="min-h-screen pb-16">
       <section className="relative overflow-hidden border-b border-white/5">
@@ -33,8 +67,7 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-5 py-16 md:py-20">
           <div className="anim-rise inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold text-slate-300 mb-6">
-            <span className="live-dot" />
-            <Globe2 className="w-3.5 h-3.5 text-teal-300" />
+            <Globe2 className="w-3.5 h-3.5 text-teal-300" aria-hidden />
             Нээлттэй, нэгтгэсэн мэдээлэл
           </div>
 
@@ -83,27 +116,23 @@ export default function HomePage() {
             <div className="lg:col-span-5 space-y-4">
               <div className="surface-card hover-lift anim-rise anim-d-2 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm uppercase tracking-wider text-slate-400 font-semibold inline-flex items-center gap-2">
-                    <span className="live-dot" />
-                    Өнөөдрийн тойм
+                  <h2 className="text-sm uppercase tracking-wider text-slate-400 font-semibold">
+                    {t.homePage.latestHeading(meta.dataThrough)}
                   </h2>
-                  <Activity className="w-4 h-4 text-emerald-400" />
+                  <Database className="w-4 h-4 text-teal-300" aria-hidden />
                 </div>
-                <div className="space-y-3">
+                <dl className="space-y-3">
                   {quickStats.map((item) => (
                     <div key={item.label} className="flex items-end justify-between gap-4 border-b border-white/5 pb-3 last:border-0 last:pb-0">
-                      <div>
-                        <p className="text-xs text-slate-400 uppercase tracking-wide">{item.label}</p>
-                        <AnimatedNumber
-                          value={item.value}
-                          durationMs={1400}
-                          className="mono-data text-2xl font-bold text-slate-50 mt-0.5 block"
-                        />
+                      <div className="min-w-0">
+                        <dt className="text-xs text-slate-400">{item.label}</dt>
+                        <dd className="mono-data text-2xl font-bold text-slate-50 mt-0.5">{item.value}</dd>
                       </div>
-                      <span className="text-xs font-semibold rounded-full bg-teal-500/15 text-teal-300 px-2.5 py-1">{item.delta}</span>
+                      <span className="max-w-[45%] text-right text-xs text-slate-400">{item.note}</span>
                     </div>
                   ))}
-                </div>
+                </dl>
+                <p className="mt-4 text-[11px] text-slate-500">{t.sourceShort}</p>
               </div>
 
               <div className="surface-card hover-lift anim-rise anim-d-4 rounded-2xl p-5">
@@ -113,7 +142,7 @@ export default function HomePage() {
                 </div>
                 <p className="text-sm text-slate-400 leading-relaxed">
                   Газрын зургаас ерөнхий хөдөлгөөнийг харж болно. Статистик хэсгээс хугацааны өөрчлөлтийг
-                  харьцуулж болно. Хэрэв тодорхой мэдээлэл өгөх шаардлагатай бол иргэдийн зураг дээр pin үлдээх боломжтой.
+                  харьцуулж болно. Иргэдийн зураг дээр ойролцоо бүсийн аноним тэмдэглэгээ үлдээх боломжтой.
                 </p>
               </div>
             </div>
@@ -143,7 +172,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-xl font-bold text-slate-50 mb-2">{t.map}</h3>
             <p className="text-slate-400 leading-relaxed">
-              Аль бүсэд илүү анхаарах хэрэгтэй байгааг нэгтгэсэн байдлаар хурдан харах хэсэг.
+              Аймаг, нийслэлийн гэмт хэргийн түвшинг хүн амд ногдуулан харьцуулах газрын зураг.
             </p>
           </Link>
 
@@ -153,7 +182,7 @@ export default function HomePage() {
           >
             <Users className="w-6 h-6 text-teal-300 mb-4 transition-transform duration-300 group-hover:scale-110" />
             <h3 className="text-lg font-bold text-slate-50 mb-2">{t.communityMap}</h3>
-            <p className="text-sm text-slate-400 mb-3">Иргэдийн оруулсан аноним тэмдэглэгээг шууд харах хэсэг.</p>
+            <p className="text-sm text-slate-400 mb-3">Иргэдийн үлдээсэн ойролцоо бүсийн аноним тэмдэглэгээ.</p>
             <span className="text-sm font-semibold text-teal-300 inline-flex items-center gap-1">
               Үзэх
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />

@@ -45,3 +45,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /blob-report/
+
+# importer summary (used as the refresh PR body)
+/.import-summary.md

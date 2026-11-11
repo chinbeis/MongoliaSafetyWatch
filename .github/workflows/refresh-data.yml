@@ -1,0 +1,68 @@
+name: Refresh 1212.mn data
+
+# 1212.mn usually publishes the previous month's crime figures mid-month.
+# Runs on the 16th and 26th, and on demand. If the importer's validation fails
+# the job fails and no PR is opened. A human reviews and merges the PR.
+on:
+  schedule:
+    - cron: "0 3 16,26 * *" # 03:00 UTC = 11:00 Ulaanbaatar
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Import and validate
+        run: pnpm import:1212
+
+      - name: Detect changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/data public/data; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "through=$(node -p "require('./src/data/1212-crime-snapshot.json').meta.dataThrough")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tests against the new snapshot
+        if: steps.diff.outputs.changed == 'true'
+        run: pnpm test
+
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # PRs opened with GITHUB_TOKEN do not trigger other workflows (CI).
+          # Set a fine-grained PAT or GitHub App token as DATA_REFRESH_TOKEN
+          # to get CI on these PRs; otherwise re-run CI manually before merge.
+          token: ${{ secrets.DATA_REFRESH_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: data/refresh-${{ steps.diff.outputs.through }}
+          delete-branch: true
+          add-paths: |
+            src/data/**
+            public/data/**
+          commit-message: "data: 1212.mn refresh through ${{ steps.diff.outputs.through }}"
+          title: "data: 1212.mn refresh through ${{ steps.diff.outputs.through }}"
+          body-path: .import-summary.md
+          labels: data

@@ -9,6 +9,7 @@ import {
   getCategoryLabel,
   type PublicCommunityReport,
 } from "@/lib/community-categories";
+import { FALLBACK_MAP_STYLE } from "@/lib/map-style";
 import { publicEnv } from "@/lib/public-env";
 import { ageInDays, formatRelativeAge } from "@/lib/relative-time";
 import { t } from "@/lib/translations";
@@ -144,16 +145,25 @@ export function CommunityReportMap({
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
 
+    // Basemap host unreachable: fall back to a plain style so the data layers
+    // still render, and tell the user.
+    let usingFallback = false;
+    let styleLoaded = false;
+    map.once("style.load", () => {
+      styleLoaded = true;
+    });
     map.on("error", (event) => {
-      // Style or tile host unreachable: keep the pins usable, tell the user.
       const message = String((event as { error?: Error }).error?.message ?? "");
-      if (!map.isStyleLoaded() || /tile|style|Failed to fetch|NetworkError/i.test(message)) {
+      if (!styleLoaded && !usingFallback) {
+        usingFallback = true;
+        setTilesFailed(true);
+        map.setStyle(FALLBACK_MAP_STYLE);
+      } else if (/tile|Failed to fetch|NetworkError/i.test(message)) {
         setTilesFailed(true);
       }
     });
 
     map.on("load", () => {
-      setTilesFailed(false);
       map.addSource("report-areas", { type: "geojson", data: EMPTY });
       map.addSource("report-points", { type: "geojson", data: EMPTY });
       map.addSource("draft-area", { type: "geojson", data: EMPTY });

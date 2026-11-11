@@ -1,0 +1,64 @@
+{
+  "mn-aimags.geojson": {
+    "sourceName": "geoBoundaries gbOpen - Mongolia ADM2 (boundaryID MNG-ADM2-93677404), merged to aimag level",
+    "upstreamSource": "National Statistical Office of Mongolia; OCHA ROAP (HDX dataset mongolia-administrative-boundaries-polygon-polyline)",
+    "sourceYearRepresented": "2021",
+    "sourceBuildDate": "Dec 12, 2023",
+    "datasetUrl": "https://github.com/wmgeolab/geoBoundaries/tree/9469f09/releaseData/gbOpen/MNG/ADM2",
+    "metadataUrl": "https://www.geoboundaries.org/api/current/gbOpen/MNG/ADM2/",
+    "upstreamDatasetUrl": "https://data.humdata.org/dataset/mongolia-administrative-boundaries-polygon-polyline",
+    "downloadUrl": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/MNG/ADM2/geoBoundaries-MNG-ADM2.geojson",
+    "license": "Creative Commons Attribution 3.0 IGO (CC BY 3.0 IGO)",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/igo/",
+    "licenseSource": "https://data.humdata.org/dataset/mongolia-administrative-boundaries-polygon-polyline",
+    "attribution": "Administrative boundaries: National Statistical Office of Mongolia and OCHA ROAP (CC BY 3.0 IGO), via geoBoundaries (Runfola et al. 2020, https://www.geoboundaries.org). Simplified and merged to aimag level.",
+    "citation": "Runfola, D. et al. (2020) geoBoundaries: A global database of political administrative boundaries. PLoS ONE 15(4): e0231866. https://doi.org/10.1371/journal.pone.0231866",
+    "retrieved": "2026-11-11",
+    "description": "21 aimags + Ulaanbaatar, 22 features, built by merging the ADM2 (soum/district) units of the same source into their aimag so aimag and district outlines agree. Properties: code (NSO / 1212.mn), name (Mongolian), labelLat, labelLng.",
+    "processing": [
+      "Downloaded the geoBoundaries gbOpen MNG ADM2 file (330 soums + 9 Ulaanbaatar districts).",
+      "Assigned each soum to the aimag it overlaps most (OpenStreetMap-derived ADM1 shapes used only as a spatial lookup; no ADM1 geometry is included), districts to Ulaanbaatar; dissolved per aimag.",
+      "mapshaper 0.6.121: -clean, -simplify visvalingam 5% keep-shapes, -snap precision=0.0001, fix-geometry, -clean (topology-preserving).",
+      "Label point per feature = mapshaper interior point, rounded to 4 decimals. Output RFC 7946 GeoJSON, coordinates rounded to 1e-4 degrees.",
+      "Validated: 22 features, each 1212.mn code once; no self-intersections, overlaps or gaps; Ulaanbaatar matches the union of the district file within 1 km."
+    ]
+  },
+  "ub-districts.geojson": {
+    "description": "9 districts (düüreg) of Ulaanbaatar, incl. exclaves Baganuur and Bagakhangai. Properties: code (NSO / 1212.mn), name (Mongolian), labelLat, labelLng.",
+    "sourceName": "geoBoundaries gbOpen - Mongolia ADM2 (boundaryID MNG-ADM2-93677404)",
+    "upstreamSource": "National Statistical Office of Mongolia; OCHA ROAP (HDX dataset mongolia-administrative-boundaries-polygon-polyline)",
+    "sourceYearRepresented": "2021",
+    "sourceBuildDate": "Dec 12, 2023",
+    "datasetUrl": "https://github.com/wmgeolab/geoBoundaries/tree/9469f09/releaseData/gbOpen/MNG/ADM2",
+    "metadataUrl": "https://www.geoboundaries.org/api/current/gbOpen/MNG/ADM2/",
+    "upstreamDatasetUrl": "https://data.humdata.org/dataset/mongolia-administrative-boundaries-polygon-polyline",
+    "downloadUrl": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/MNG/ADM2/geoBoundaries-MNG-ADM2.geojson",
+    "license": "Creative Commons Attribution 3.0 IGO (CC BY 3.0 IGO)",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/igo/",
+    "licenseSource": "https://data.humdata.org/dataset/mongolia-administrative-boundaries-polygon-polyline",
+    "attribution": "District boundaries: National Statistical Office of Mongolia and OCHA ROAP (CC BY 3.0 IGO), via geoBoundaries (Runfola et al. 2020, https://www.geoboundaries.org). Simplified and recoded.",
+    "citation": "Runfola, D. et al. (2020) geoBoundaries: A global database of political administrative boundaries. PLoS ONE 15(4): e0231866. https://doi.org/10.1371/journal.pone.0231866",
+    "retrieved": "2026-11-11",
+    "processing": [
+      "Downloaded downloadUrl (339 soum/district features).",
+      "Selected the 9 Ulaanbaatar districts by geoBoundaries shapeID (names in the source are transliterated, e.g. Xan-Uul, Su'xbaatar, Bayanzu'rx; several names repeat as soums elsewhere, so shapeID was used).",
+      "mapshaper 0.6.121: -clean -simplify visvalingam 50% keep-shapes -snap precision=0.0001 fix-geometry -clean (topology-preserving).",
+      "Label point per feature = mapshaper interior point (this.innerX/innerY, same algorithm as -points inner), rounded to 4 decimals.",
+      "Output -o format=geojson rfc7946 precision=0.0001.",
+      "Matched to National Statistics Office (1212.mn) district codes and Mongolian names; all source properties replaced by {code,name,labelLat,labelLng}; written as compact JSON.",
+      "Validated: 9 features, each code once; no self-intersections; no overlaps or gaps (dissolve = 3 parts: main city, Baganuur, Bagakhangai, each 1 ring); each label inside its own polygon only."
+    ],
+    "matchField": "shapeID",
+    "codeMapping": {
+      "93677404B2463849994891 Baganuur": "51101",
+      "93677404B94518670866672 Bagaxangai": "51104",
+      "93677404B56181077288727 Bayangol": "51107",
+      "93677404B78572073396815 Bayanzu'rx": "51110",
+      "93677404B72325521473587 Nalaix": "51113",
+      "93677404B95437285917288 Songinoxairxan": "51116",
+      "93677404B10423406698460 Su'xbaatar": "51119",
+      "93677404B94490169269592 Xan-Uul": "51122",
+      "93677404B82424679119266 Chingeltei": "51125"
+    }
+  }
+}

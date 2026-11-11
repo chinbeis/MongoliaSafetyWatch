@@ -77,6 +77,24 @@ export async function listPublicReports(): Promise<PublicCommunityReport[]> {
   return rows.map(toPublicReport);
 }
 
+/** Number of pins currently visible on the public map, or null if the DB is unavailable. */
+export async function countPublicReports(): Promise<number | null> {
+  try {
+    const [row] = await getDb()
+      .select({ count: sql<number>`count(*)::int` })
+      .from(communityReports)
+      .where(
+        and(
+          eq(communityReports.status, "visible"),
+          gt(communityReports.createdAt, sql`now() - make_interval(days => ${REPORT_TTL_DAYS})`)
+        )
+      );
+    return Number(row.count);
+  } catch {
+    return null;
+  }
+}
+
 export async function insertReport(input: {
   category: CommunityCategory;
   latitude: number;
