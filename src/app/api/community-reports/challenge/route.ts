@@ -3,6 +3,7 @@ import { apiError, retryAfter } from "@/lib/api-response";
 import { getClientKey } from "@/lib/client-key";
 import { createChallengeFor, getCommunityWriteStatus } from "@/lib/community-bot-check";
 import { MINUTE_MS, rateLimit } from "@/lib/rate-limit";
+import { reportError } from "@/lib/monitoring";
 
 /**
  * Tells the client whether pins can be created and which human check to show:
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
     }
     return NextResponse.json(createChallengeFor(status), { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Failed to issue community challenge:", error);
+    reportError("community-reports.challenge", error);
     return apiError("server_error", 500);
   }
 }

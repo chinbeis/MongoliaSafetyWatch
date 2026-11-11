@@ -4,6 +4,7 @@ import { getClientKey } from "@/lib/client-key";
 import { checkHuman, getCommunityWriteStatus } from "@/lib/community-bot-check";
 import { flagReport, flagReportSchema } from "@/lib/community-reports";
 import { MINUTE_MS, rateLimit } from "@/lib/rate-limit";
+import { reportError } from "@/lib/monitoring";
 
 const FLAG_LIMIT = { limit: 10, windowMs: 10 * MINUTE_MS };
 
@@ -46,7 +47,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {
-    console.error("Failed to flag community report:", error);
+    reportError("community-reports.flag", error);
     return apiError("server_error", 500);
   }
 }

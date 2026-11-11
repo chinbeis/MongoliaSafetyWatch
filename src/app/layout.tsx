@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Navbar, Footer } from "@/components/layout/navigation";
 import { publicEnv } from "@/lib/public-env";
@@ -64,6 +65,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <Footer />
+        {/* Cookieless, no PII. Only on Vercel, where /_vercel/insights exists. */}
+        {process.env.VERCEL === "1" ? <Analytics /> : null}
       </body>
     </html>
   );

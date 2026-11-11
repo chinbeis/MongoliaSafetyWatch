@@ -4,7 +4,7 @@ import { getClientKey } from "@/lib/client-key";
 import { checkHuman, getCommunityWriteStatus } from "@/lib/community-bot-check";
 import { createReportSchema, insertReport, listPublicReports } from "@/lib/community-reports";
 import { isInsideMongoliaBounds } from "@/lib/geo-privacy";
-import { reportAlert } from "@/lib/monitoring";
+import { reportAlert, reportError } from "@/lib/monitoring";
 import { DAY_MS, HOUR_MS, MINUTE_MS, rateLimit } from "@/lib/rate-limit";
 
 const CREATE_SHORT = { limit: 3, windowMs: 10 * MINUTE_MS };
@@ -20,7 +20,7 @@ export async function GET() {
       { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120" } }
     );
   } catch (error) {
-    console.error("Failed to fetch community reports:", error);
+    reportError("community-reports.list", error);
     return apiError("server_error", 500);
   }
 }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     const report = await insertReport(body);
     return NextResponse.json({ report }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Failed to create community report:", error);
+    reportError("community-reports.create", error);
     return apiError("server_error", 500);
   }
 }

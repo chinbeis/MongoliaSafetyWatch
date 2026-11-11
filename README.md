@@ -44,6 +44,8 @@ or still a placeholder.
 | `NEXT_PUBLIC_MAP_STYLE_URL` | no | MapLibre style URL (defaults to OpenFreeMap dark) |
 | `SENTRY_DSN` | no | Error reporting; disabled when empty |
 | `COMMUNITY_REPORTS_READONLY` | no | `1` = emergency switch, community map becomes read-only |
+| `NEXT_PUBLIC_MAP_ATTRIBUTION` | no | Basemap credit; change together with the style URL |
+| `CSP_REPORT_ONLY` | no | `1` = send CSP as report-only (preview trial) |
 
 ## Commands
 
@@ -53,9 +55,11 @@ pnpm build         # production build (works with no env at all)
 pnpm start         # serve the production build
 pnpm lint          # eslint
 pnpm typecheck     # tsc --noEmit
-pnpm test          # vitest (unit + route-handler tests)
+pnpm test          # vitest: unit + route-handler tests on an in-process Postgres (PGlite)
+pnpm test:e2e      # Playwright mobile smoke tests against a production build (run pnpm build first)
 pnpm import:1212   # refresh official statistics from 1212.mn
 pnpm db:migrate    # apply drizzle/*.sql — see docs/DEPLOY.md before touching production
+node scripts/abuse-check.mjs <preview-url>   # scripted abuse test (preview only)
 ```
 
 ## Data
@@ -69,7 +73,16 @@ There are two independent data paths:
 2. **Community map** — anonymous, area-level pins stored in Postgres (`community_reports`),
    written through `/api/community-reports` with bot protection and rate limiting.
 
-## Deployment
+## Deployment and operations
 
 Hosted on Vercel (functions in `sin1`, next to the Neon database in `ap-southeast-1`). CI runs lint,
-typecheck, tests and a build on every pull request. See `docs/DEPLOY.md` and `docs/RUNBOOK.md`.
+typecheck, unit tests, a build with no environment, and the mobile smoke tests on every pull request.
+
+- `docs/DEPLOY.md` — first deployment, environment per environment, migrations, domain, rollback
+- `docs/RUNBOOK.md` — moderation, emergency read-only switch, alerts, data refresh, secret rotation
+- `LAUNCH_PLAN.md` — the launch plan this state was built from
+
+Security: strict security headers and a CSP on every route (`src/lib/security-headers.ts`),
+Postgres-backed rate limiting with daily-rotating HMAC client keys (no raw IPs stored),
+Cloudflare Turnstile, server-side snapping of community pins to a 250 m grid, token-protected
+moderation, and server-only Sentry with all request data scrubbed.

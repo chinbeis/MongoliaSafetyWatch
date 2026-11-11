@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { apiError, isUuid, readJson } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/admin-auth";
 import { adminActionSchema, moderateReport } from "@/lib/admin-reports";
+import { reportError } from "@/lib/monitoring";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -26,7 +27,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
     return NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Admin moderation failed:", error);
+    reportError("admin.moderate", error);
     return apiError("server_error", 500);
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { apiError } from "@/lib/api-response";
 import { requireAdmin } from "@/lib/admin-auth";
 import { adminStatusSchema, listAdminReports } from "@/lib/admin-reports";
+import { reportError } from "@/lib/monitoring";
 
 export async function GET(request: Request) {
   try {
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
     const data = await listAdminReports(status.data);
     return NextResponse.json(data, { headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
   } catch (error) {
-    console.error("Admin list failed:", error);
+    reportError("admin.list", error);
     return apiError("server_error", 500);
   }
 }

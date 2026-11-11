@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
+/** Point the suite at a deployed preview/production URL instead of a local build. */
+const REMOTE_BASE_URL = process.env.E2E_BASE_URL;
 
 /**
  * Smoke tests against a production build. API calls the pages make are
@@ -13,18 +15,20 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: REMOTE_BASE_URL ?? `http://localhost:${PORT}`,
     trace: "retain-on-failure",
   },
   projects: [
     { name: "mobile-360", use: { ...devices["Pixel 5"], viewport: { width: 360, height: 740 } } },
     { name: "mobile-390", use: { ...devices["iPhone 13"], browserName: "chromium", viewport: { width: 390, height: 844 } } },
   ],
-  webServer: {
-    command: `pnpm start -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    env: { DATABASE_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
-  },
+  webServer: REMOTE_BASE_URL
+    ? undefined
+    : {
+        command: `pnpm start -p ${PORT}`,
+        url: `http://localhost:${PORT}`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+        env: { DATABASE_URL: "", NEXT_TELEMETRY_DISABLED: "1" },
+      },
 });
