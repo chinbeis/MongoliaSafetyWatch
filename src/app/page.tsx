@@ -26,11 +26,12 @@ import {
   getMonthsAvailable,
 } from "@/lib/crime-snapshot";
 import { countPublicReports } from "@/lib/community-reports";
+import { pageMetadata } from "@/lib/page-metadata";
 import { t } from "@/lib/translations";
 
 export const metadata: Metadata = {
+  ...pageMetadata(`${t.title} – Монгол Улс`, t.homePage.description),
   title: { absolute: `${t.title} – Монгол Улс` },
-  description: t.homePage.description,
 };
 
 // The community-pin count is refreshed at most every 5 minutes; everything
@@ -123,16 +124,19 @@ export default async function HomePage() {
                 </div>
                 <dl className="space-y-3">
                   {quickStats.map((item) => (
-                    <div key={item.label} className="flex items-end justify-between gap-4 border-b border-white/5 pb-3 last:border-0 last:pb-0">
-                      <div className="min-w-0">
-                        <dt className="text-xs text-slate-400">{item.label}</dt>
-                        <dd className="mono-data text-2xl font-bold text-slate-50 mt-0.5">{item.value}</dd>
-                      </div>
-                      <span className="max-w-[45%] text-right text-xs text-slate-400">{item.note}</span>
+                    <div
+                      key={item.label}
+                      className="grid grid-cols-[1fr_auto] items-end gap-x-4 border-b border-white/5 pb-3 last:border-0 last:pb-0"
+                    >
+                      <dt className="col-start-1 text-xs text-slate-400">{item.label}</dt>
+                      <dd className="col-start-1 mono-data text-2xl font-bold text-slate-50 mt-0.5">{item.value}</dd>
+                      <dd className="col-start-2 row-span-2 row-start-1 self-end max-w-[11rem] text-right text-xs text-slate-400">
+                        {item.note}
+                      </dd>
                     </div>
                   ))}
                 </dl>
-                <p className="mt-4 text-[11px] text-slate-500">{t.sourceShort}</p>
+                <p className="mt-4 text-[11px] text-slate-400">{t.sourceShort}</p>
               </div>
 
               <div className="surface-card hover-lift anim-rise anim-d-4 rounded-2xl p-5">
@@ -168,7 +172,7 @@ export default async function HomePage() {
               <div className="h-10 w-10 rounded-xl bg-teal-500/15 text-teal-300 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                 <MapIcon className="w-5 h-5" />
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-500 transition-all group-hover:text-teal-300 group-hover:translate-x-1" />
+              <ArrowRight className="w-5 h-5 text-slate-400 transition-all group-hover:text-teal-300 group-hover:translate-x-1" />
             </div>
             <h3 className="text-xl font-bold text-slate-50 mb-2">{t.map}</h3>
             <p className="text-slate-400 leading-relaxed">
@@ -210,7 +214,7 @@ export default async function HomePage() {
               <div className="h-10 w-10 rounded-xl bg-sky-500/15 text-sky-300 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                 <BookOpen className="w-5 h-5" />
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-500 transition-all group-hover:text-sky-300 group-hover:translate-x-1" />
+              <ArrowRight className="w-5 h-5 text-slate-400 transition-all group-hover:text-sky-300 group-hover:translate-x-1" />
             </div>
             <h3 className="text-xl font-bold text-slate-50 mb-2">{t.learnPrevention}</h3>
             <p className="text-slate-400 leading-relaxed">Аюулгүй байдлын тухай энгийн, хэрэгтэй зөвлөмжүүд.</p>

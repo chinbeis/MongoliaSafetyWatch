@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
+import { t } from "@/lib/translations";
+
+export const metadata: Metadata = pageMetadata(t.terms, "Платформыг ашиглах нөхцөл, иргэдийн зургийн журам, хариуцлагын хязгаар.");
+
 export default function TermsPage() {
   return (
     <div className="min-h-screen">
@@ -8,7 +14,7 @@ export default function TermsPage() {
           <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-3">
             Үйлчилгээний нөхцөл
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             Сүүлд шинэчилсэн: 2026 оны 11-р сарын 11
           </p>
         </div>

@@ -30,6 +30,7 @@ import { DEFAULT_RADIUS_M, MAX_RADIUS_M, MIN_RADIUS_M, RADIUS_STEP_M, snapToGrid
 import { ageInDays, formatRelativeAge } from "@/lib/relative-time";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { LiveBadge, MonitorPanel } from "@/components/ui/monitor";
+import { MapAttribution } from "@/components/map/map-attribution";
 import { TurnstileWidget } from "@/components/community/turnstile-widget";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { useBrowserStorage, writeBrowserStorage } from "@/lib/use-browser-storage";
@@ -260,6 +261,7 @@ export default function CommunityMapPage() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-slate-950/80 to-transparent" />
+      <MapAttribution className="absolute bottom-[3.75rem] left-3 z-20 max-w-[70%] lg:bottom-12 lg:left-[22.5rem]" />
 
       {/* Top strip: badge, count, category filters, and the emergency notice */}
       <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex flex-col gap-2 sm:inset-x-4 sm:top-4 lg:left-[22.5rem] lg:right-[20.5rem]">
@@ -285,7 +287,7 @@ export default function CommunityMapPage() {
                 onClick={() => toggleCategory(item.value)}
                 aria-pressed={active}
                 className={`monitor-panel inline-flex min-h-9 shrink-0 items-center gap-2 rounded-full px-3 text-xs font-semibold transition-opacity ${
-                  active ? "text-slate-100" : "text-slate-500 opacity-60"
+                  active ? "text-slate-100" : "text-slate-400 opacity-60"
                 }`}
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.color }} aria-hidden />
@@ -347,20 +349,22 @@ export default function CommunityMapPage() {
           }`}
           aria-label={t.community.pageBadge}
         >
-          <div className="flex h-14 shrink-0 items-center gap-1 px-2" role="tablist">
-            <SheetTab
-              active={sheet.tab === "create"}
-              onClick={() => setSheet({ open: true, tab: "create" })}
-              icon={<PenLine className="h-4 w-4" />}
-              label={t.community.tabCreate}
-            />
-            <SheetTab
-              active={sheet.tab === "feed"}
-              onClick={() => setSheet({ open: true, tab: "feed" })}
-              icon={<List className="h-4 w-4" />}
-              label={t.community.tabFeed}
-              count={visibleReports.length}
-            />
+          <div className="flex h-14 shrink-0 items-center gap-1 px-2">
+            <div className="flex min-w-0 items-center gap-1" role="tablist">
+              <SheetTab
+                active={sheet.tab === "create"}
+                onClick={() => setSheet({ open: true, tab: "create" })}
+                icon={<PenLine className="h-4 w-4" />}
+                label={t.community.tabCreate}
+              />
+              <SheetTab
+                active={sheet.tab === "feed"}
+                onClick={() => setSheet({ open: true, tab: "feed" })}
+                icon={<List className="h-4 w-4" />}
+                label={t.community.tabFeed}
+                count={visibleReports.length}
+              />
+            </div>
             <button
               type="button"
               onClick={() => setSheet((current) => ({ ...current, open: !current.open }))}
@@ -386,7 +390,7 @@ export default function CommunityMapPage() {
             <span className="live-dot live-dot--amber" />
             {t.community.statusBar}
           </span>
-          <span className="ml-auto hidden shrink-0 text-slate-500 md:block">{t.community.areaPrivacyNote}</span>
+          <span className="ml-auto hidden shrink-0 text-slate-400 md:block">{t.community.areaPrivacyNote}</span>
         </div>
       </footer>
 

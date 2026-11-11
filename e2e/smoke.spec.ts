@@ -1,6 +1,6 @@
 import { expect, expectNoHorizontalScroll, mockApis, test } from "./fixtures";
 
-const PAGES = ["/", "/map", "/stats", "/community-map", "/report"];
+const PAGES = ["/", "/map", "/stats", "/community-map", "/report", "/education", "/data-sources", "/about", "/privacy", "/terms"];
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => window.localStorage.setItem("community-map-explainer-v1", "1"));

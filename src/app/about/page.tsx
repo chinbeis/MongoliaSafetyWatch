@@ -1,3 +1,9 @@
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
+import { t } from "@/lib/translations";
+
+export const metadata: Metadata = pageMetadata(t.about, "Хараат бус, ашгийн бус олон нийтийн аюулгүй байдлын мэдээллийн санаачилгын зорилго, ёс зүйн зарчим, холбоо барих.");
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen">

@@ -1,198 +1,129 @@
-"use client";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
+import { AlertCircle, ExternalLink, Info, Phone } from "lucide-react";
+import { t } from "@/lib/translations";
 
-import { Phone, ExternalLink, AlertCircle, Info } from "lucide-react";
+export const metadata: Metadata = pageMetadata(t.reportPage.title, t.reportPage.description);
+
+/**
+ * Every number and link on this page was checked against an official source
+ * on VERIFIED_ON. Re-verify before changing anything here, and update the date.
+ *   101/102/103/105 — Communications Regulatory Commission of Mongolia
+ *   108             — Ministry of Labour and Social Protection (Dec 2025)
+ */
+const VERIFIED_ON = "2026-11-11";
+
+const EMERGENCY_NUMBERS = [
+  { number: "102", title: "Цагдаа", description: "Гэмт хэрэг, зөрчил, аюулгүй байдалд заналхийлсэн нөхцөл байдлыг мэдээлэх" },
+  { number: "103", title: "Түргэн тусламж", description: "Эрүүл мэндийн яаралтай тусламж дуудах" },
+  { number: "101", title: "Гал түймэр", description: "Гал түймрийн аюулыг мэдээлэх" },
+  { number: "105", title: "Онцгой байдал", description: "Гамшиг, ослын үеийн яаралтай хариу арга хэмжээ" },
+  { number: "108", title: "Хүүхдийн тусламжийн утас", description: "Хүүхдийн яаралтай тусламж, хамгаалах төв — хүүхэд эрсдэлд орсон, хүчирхийлэлд өртсөн тохиолдолд" },
+] as const;
+
+const OFFICIAL_LINKS = [
+  {
+    href: "https://police.gov.mn",
+    title: "Цагдаагийн ерөнхий газар",
+    description: "Цагдаагийн байгууллагын албан ёсны вэбсайт",
+  },
+  {
+    href: "https://mlsp.gov.mn/eng/content/detail/2016",
+    title: "108 Хүүхдийн яаралтай тусламж, хамгаалах төв",
+    description: "Хөдөлмөр, нийгмийн хамгааллын яамны мэдээлэл (англи хэлээр)",
+  },
+  {
+    href: "https://crc.gov.mn/en/information-communication-network-and-service",
+    title: "Яаралтай тусламжийн дугаарууд",
+    description: "Харилцаа холбооны зохицуулах хорооны жагсаалт (англи хэлээр)",
+  },
+] as const;
 
 export default function ReportPage() {
-  const emergencyContacts = [
-    { 
-      title: "Цагдаагийн яаралтай тусламж", 
-      number: "102", 
-      description: "Шуурхай тусламж авах болон гэмт хэрэг мэдээлэх"
-    },
-    { 
-      title: "Хүүхэд хамгаалал", 
-      number: "108", 
-      description: "Хүүхдийн аюулгүй байдалтай холбоотой дуудлага"
-    },
-    { 
-      title: "Эмнэлгийн яаралтай тусламж", 
-      number: "103", 
-      description: "Яаралтай түргэн тусламж дуудах"
-    },
-    { 
-      title: "Гал түймэр, аврах ажиллагаа", 
-      number: "105", 
-      description: "Гал түймэр болон гамшгийн үед дуудах"
-    },
-  ];
-
   return (
     <div className="min-h-screen">
-      
-      {/* Header */}
       <div className="border-b border-white/5">
         <div className="max-w-4xl mx-auto px-5 py-10 sm:py-14">
-          <div className="inline-block px-3 py-1.5 bg-amber-500/15 text-amber-300 rounded-md text-xs font-semibold mb-4 uppercase tracking-wide">
-            <AlertCircle className="w-3 h-3 inline mr-1.5" />
-            Анхааруулга
-          </div>
-          
-          <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-5">
-            Мэдээлэх сувгууд
-          </h1>
-          
-          <div className="bg-amber-500/10 border-l-4 border-amber-500 p-5 rounded-r-lg">
-            <p className="text-slate-300 leading-relaxed">
-              <strong className="text-slate-50">Анхаар:</strong> Энэхүү платформ нь зөвхөн боловсрол, 
-              статистикийн нөөс юм. Бид гэмт хэргийн мэдээллийг хүлээж авдаггүй. 
-              Хэрэв танд яаралтай тусламж хэрэгтэй бол доорх албан ёсны дугаарууд руу шууд холбогдоно уу.
-            </p>
+          <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-5">{t.reportPage.title}</h1>
+          <div className="flex gap-3 rounded-xl border border-amber-500/25 bg-amber-500/10 p-5">
+            <AlertCircle className="h-5 w-5 shrink-0 text-amber-300 mt-0.5" aria-hidden />
+            <p className="text-slate-200 leading-relaxed">{t.reportPage.notice}</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-5 py-10">
-        
-        {/* Emergency numbers */}
-        <div className="mb-10">
-          <h2 className="text-2xl font-bold text-slate-50 mb-6">
-            Яаралтай дугаарууд
+      <div className="max-w-4xl mx-auto px-5 py-10 space-y-10">
+        <section aria-labelledby="numbers-heading">
+          <h2 id="numbers-heading" className="text-2xl font-bold text-slate-50 mb-6">
+            {t.reportPage.numbersHeading}
           </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {emergencyContacts.map((contact) => (
-              <div 
-                key={contact.number} 
-                className="surface-card rounded-xl p-6 hover:border-white/20 transition-all"
-              >
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {EMERGENCY_NUMBERS.map((contact) => (
+              <li key={contact.number} className="surface-card rounded-2xl p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-slate-50 mb-1.5">
-                      {contact.title}
-                    </h3>
-                    <p className="text-sm text-slate-400 leading-relaxed">
-                      {contact.description}
-                    </p>
+                  <div>
+                    <h3 className="font-bold text-slate-50 mb-1">{contact.title}</h3>
+                    <p className="text-sm text-slate-400 leading-relaxed">{contact.description}</p>
                   </div>
-                  <div className="text-3xl font-bold text-slate-50 shrink-0">
-                    {contact.number}
-                  </div>
+                  <span className="mono-data text-3xl font-bold text-slate-50 shrink-0">{contact.number}</span>
                 </div>
-                
-                <a 
+                <a
                   href={`tel:${contact.number}`}
-                  className="inline-flex items-center justify-center w-full gap-2 px-4 py-2.5 bg-teal-500 text-slate-950 text-sm font-semibold rounded-lg hover:bg-teal-400 transition-colors"
+                  className="mt-auto inline-flex min-h-12 items-center justify-center w-full gap-2 px-4 bg-teal-500 text-slate-950 text-base font-semibold rounded-xl hover:bg-teal-400 transition-colors"
                 >
-                  <Phone className="w-4 h-4" />
-                  Дуудах
+                  <Phone className="w-4 h-4" aria-hidden />
+                  {t.reportPage.call(contact.number)}
                 </a>
-              </div>
+              </li>
             ))}
-          </div>
-        </div>
-
-        {/* Instructions */}
-        <div className="surface-card rounded-xl p-6 sm:p-8 mb-8">
-          <h3 className="text-lg font-bold text-slate-50 mb-5">
-            Мэдээлэх үед юу хэлэх вэ?
-          </h3>
-          
-          <ol className="space-y-3.5 text-slate-300">
-            <li className="flex gap-3">
-              <span className="font-bold text-slate-50 shrink-0">1.</span>
-              <span>Өөрийн аюулгүй байдлыг эхлээд хангах</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-slate-50 shrink-0">2.</span>
-              <span>Юу болсон, хаана, хэзээ болсныг тодорхой хэлэх</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-slate-50 shrink-0">3.</span>
-              <span>Холбогдох утасны дугаараа үлдээх</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-slate-50 shrink-0">4.</span>
-              <span>Нотлох баримт байвал хадгалах (зураг, мессеж, видео)</span>
-            </li>
-          </ol>
-        </div>
-
-        {/* Online resources */}
-        <div className="mb-8">
-          <h3 className="text-lg font-bold text-slate-50 mb-5">
-            Онлайн нөөц
-          </h3>
-          
-          <div className="space-y-3">
-            <a
-              href="https://police.gov.mn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-5 surface-card rounded-xl hover:border-white/20 hover:bg-white/5 transition-all group"
-            >
-              <div>
-                <div className="font-semibold text-slate-50 mb-1">
-                  Цагдаагийн Ерөнхий Газар
-                </div>
-                <div className="text-sm text-slate-400">
-                  Албан ёсны вэбсайт болон онлайн мэдээлэх систем
-                </div>
-              </div>
-              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-400 transition-colors shrink-0" />
-            </a>
-
-            <a
-              href="https://www.gov.mn/mn/organization/cfga"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-5 surface-card rounded-xl hover:border-white/20 hover:bg-white/5 transition-all group"
-            >
-              <div>
-                <div className="font-semibold text-slate-50 mb-1">
-                  Гэр бүл, хүүхэд, залуучуудын хөгжлийн газар
-                </div>
-                <div className="text-sm text-slate-400">
-                  Хүүхэд хамгааллын мэдээлэл болон дэмжлэг
-                </div>
-              </div>
-              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-400 transition-colors shrink-0" />
-            </a>
-
-            <a
-              href="https://www.cfga.gov.mn/website/home.aspx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-5 surface-card rounded-xl hover:border-white/20 hover:bg-white/5 transition-all group"
-            >
-              <div>
-                <div className="font-semibold text-slate-50 mb-1">
-                  Хүүхэд хамгааллын үндэсний төв
-                </div>
-                <div className="text-sm text-slate-400">
-                  Мэргэжлийн зөвлөгөө, сэтгэл зүйн дэмжлэг
-                </div>
-              </div>
-              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-400 transition-colors shrink-0" />
-            </a>
-          </div>
-        </div>
-
-        {/* Privacy info */}
-        <div className="bg-sky-500/10 border border-sky-500/20 rounded-xl p-6">
-          <div className="flex gap-3 items-start mb-4">
-            <Info className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
-            <h4 className="font-semibold text-sky-200">
-              Нууцлал ба аюулгүй байдал
-            </h4>
-          </div>
-          <ul className="text-sm text-sky-200 space-y-2 leading-relaxed">
-            <li>• Бүх яаралтай дуудлага үнэ төлбөргүй, нууцлалтай</li>
-            <li>• Та нэр нууцаар мэдээлж болно</li>
-            <li>• Яриа хэлээр харилцах боломжгүй бол текст мессеж илгээх боломжтой</li>
-            <li>• Таны аюулгүй байдлыг хангах нь цагдаагийн үүрэг юм</li>
           </ul>
-        </div>
+          <p className="mt-4 text-xs text-slate-400">{t.reportPage.verified(VERIFIED_ON)}</p>
+        </section>
 
+        <section className="surface-card rounded-2xl p-6 sm:p-8" aria-labelledby="what-to-say">
+          <h2 id="what-to-say" className="text-lg font-bold text-slate-50 mb-5">
+            {t.reportPage.whatToSay}
+          </h2>
+          <ol className="space-y-3.5 text-slate-300 list-decimal pl-5 marker:font-bold marker:text-slate-50">
+            {t.reportPage.steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </section>
+
+        <section aria-labelledby="official-links">
+          <h2 id="official-links" className="text-lg font-bold text-slate-50 mb-5">
+            {t.reportPage.officialLinks}
+          </h2>
+          <ul className="space-y-3">
+            {OFFICIAL_LINKS.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-11 items-center justify-between gap-4 p-5 surface-card rounded-2xl hover:bg-white/5 transition-colors"
+                >
+                  <span>
+                    <span className="block font-semibold text-slate-50 mb-1">{link.title}</span>
+                    <span className="block text-sm text-slate-400">{link.description}</span>
+                  </span>
+                  <ExternalLink className="w-5 h-5 text-slate-400 shrink-0" aria-hidden />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-2xl border border-sky-500/20 bg-sky-500/10 p-6">
+          <div className="flex gap-3 items-start">
+            <Info className="w-5 h-5 text-sky-300 shrink-0 mt-0.5" aria-hidden />
+            <div>
+              <h2 className="font-semibold text-sky-100 mb-2">{t.reportPage.aboutUsTitle}</h2>
+              <p className="text-sm text-sky-100/80 leading-relaxed">{t.reportPage.aboutUs}</p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

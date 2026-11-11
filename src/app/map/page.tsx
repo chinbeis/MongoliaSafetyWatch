@@ -50,6 +50,7 @@ import { distanceMeters } from "@/lib/geo-privacy";
 import { t } from "@/lib/translations";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { MonitorPanel } from "@/components/ui/monitor";
+import { MapAttribution } from "@/components/map/map-attribution";
 import type { ChoroplethDistrict, ChoroplethRegion } from "@/components/map/region-choropleth";
 
 const RegionChoropleth = dynamic(
@@ -61,7 +62,7 @@ const RegionChoropleth = dynamic(
         <Loader2 className="h-8 w-8 animate-spin text-teal-300" aria-hidden />
       </div>
     ),
-  }
+  },
 );
 
 const meta = getMeta();
@@ -96,7 +97,7 @@ export default function MapPage() {
   const rows = useMemo(() => getRegionRows(effectiveMeasure, year), [effectiveMeasure, year]);
   const breaks = useMemo(
     () => quantileBreaks(rows.map((row) => row.rate).filter((rate): rate is number => rate != null)),
-    [rows]
+    [rows],
   );
 
   const choroplethRegions = useMemo<ChoroplethRegion[]>(
@@ -115,15 +116,13 @@ export default function MapPage() {
               : t.mapPage.noData
             : `${formatCell(row.count)} · ${t.mapPage.registered.toLowerCase()}`,
       })),
-    [rows, breaks, mode]
+    [rows, breaks, mode],
   );
 
   const sortedRows = useMemo(() => {
     const key = (row: (typeof rows)[number]) => (mode === "rate" ? row.rate : row.count.value) ?? -Infinity;
     const needle = query.trim().toLowerCase();
-    return rows
-      .filter((row) => !needle || row.name.toLowerCase().includes(needle))
-      .sort((a, b) => key(b) - key(a));
+    return rows.filter((row) => !needle || row.name.toLowerCase().includes(needle)).sort((a, b) => key(b) - key(a));
   }, [rows, mode, query]);
 
   const selected = rows.find((row) => row.code === selectedCode) ?? rows[0];
@@ -192,11 +191,13 @@ export default function MapPage() {
         if (bestCode) selectRegion(bestCode);
       },
       () => setGeoStatus("error"),
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 }
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 },
     );
   }
 
-  const rails = isDesktop ? { left: 352, right: 320, top: 64, bottom: 40 } : { left: 0, right: 0, top: 120, bottom: 56 };
+  const rails = isDesktop
+    ? { left: 352, right: 320, top: 64, bottom: 40 }
+    : { left: 0, right: 0, top: 120, bottom: 56 };
   const dataAsOf = t.dataAsOf(meta.dataThrough);
 
   return (
@@ -220,6 +221,7 @@ export default function MapPage() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-slate-950/80 to-transparent" />
+      <MapAttribution className="absolute bottom-[3.75rem] left-3 z-20 max-w-[70%] lg:bottom-12 lg:left-[22.5rem]" />
 
       {/* Top strip: provenance + national figures */}
       <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex flex-col gap-2 sm:inset-x-4 lg:left-[22.5rem] lg:right-[21rem]">
@@ -296,19 +298,21 @@ export default function MapPage() {
           }`}
           aria-label={t.map}
         >
-          <div className="flex h-14 shrink-0 items-center gap-1 px-2" role="tablist">
-            <SheetTab
-              active={sheet.tab === "regions"}
-              onClick={() => setSheet({ open: true, tab: "regions" })}
-              icon={<ListOrdered className="h-4 w-4" />}
-              label={t.mapPage.tabRegions}
-            />
-            <SheetTab
-              active={sheet.tab === "detail"}
-              onClick={() => setSheet({ open: true, tab: "detail" })}
-              icon={<Crosshair className="h-4 w-4" />}
-              label={selected.name}
-            />
+          <div className="flex h-14 shrink-0 items-center gap-1 px-2">
+            <div className="flex min-w-0 items-center gap-1" role="tablist">
+              <SheetTab
+                active={sheet.tab === "regions"}
+                onClick={() => setSheet({ open: true, tab: "regions" })}
+                icon={<ListOrdered className="h-4 w-4" />}
+                label={t.mapPage.tabRegions}
+              />
+              <SheetTab
+                active={sheet.tab === "detail"}
+                onClick={() => setSheet({ open: true, tab: "detail" })}
+                icon={<Crosshair className="h-4 w-4" />}
+                label={selected.name}
+              />
+            </div>
             <button
               type="button"
               onClick={() => setSheet((current) => ({ ...current, open: !current.open }))}
@@ -320,7 +324,10 @@ export default function MapPage() {
             </button>
           </div>
           {sheet.open ? (
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto border-t border-white/5 p-4 pb-6" role="tabpanel">
+            <div
+              className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto border-t border-white/5 p-4 pb-6"
+              role="tabpanel"
+            >
               {sheet.tab === "regions" ? (
                 <>
                   {renderFilters()}
@@ -347,7 +354,7 @@ export default function MapPage() {
               {meta.sources.totals.tableId}, {meta.sources.rates.tableId}
             </span>
           </span>
-          <span className="ml-auto hidden shrink-0 uppercase tracking-[0.14em] text-slate-500 md:block">
+          <span className="ml-auto hidden shrink-0 uppercase tracking-[0.14em] text-slate-400 md:block">
             {t.aggregatedNoPii}
           </span>
         </div>
@@ -378,7 +385,11 @@ export default function MapPage() {
           </label>
           <div>
             <FieldLabel icon={<MapIcon className="h-3 w-3" />} text={t.mapPage.display} />
-            <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1" role="group" aria-label={t.mapPage.display}>
+            <div
+              className="mt-1.5 grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1"
+              role="group"
+              aria-label={t.mapPage.display}
+            >
               <ModeButton active={mode === "rate"} onClick={() => setMode("rate")} label={t.mapPage.modeRate} />
               <ModeButton active={mode === "count"} onClick={() => setMode("count")} label={t.mapPage.modeCount} />
             </div>
@@ -416,7 +427,7 @@ export default function MapPage() {
           <Crosshair className={`h-4 w-4 ${geoStatus === "loading" ? "animate-spin" : ""}`} aria-hidden />
           {geoStatus === "loading" ? t.mapPage.locating : t.mapPage.nearMe}
         </button>
-        <p className="text-[11px] leading-relaxed text-slate-500">{t.mapPage.locationPrivate}</p>
+        <p className="text-[11px] leading-relaxed text-slate-400">{t.mapPage.locationPrivate}</p>
         {geoStatus === "error" ? <p className="text-xs text-amber-300">{t.mapPage.locationFailed}</p> : null}
         {nearest ? (
           <p className="rounded-xl border border-teal-500/20 bg-teal-500/10 px-3 py-2 text-xs text-teal-200">
@@ -431,7 +442,10 @@ export default function MapPage() {
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="relative shrink-0">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden />
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            aria-hidden
+          />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -466,7 +480,9 @@ export default function MapPage() {
                     onClick={() => selectRegion(row.code)}
                     aria-current={active ? "true" : undefined}
                     className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition-colors ${
-                      active ? "border-teal-500/40 bg-teal-500/10" : "border-transparent bg-white/[0.03] hover:bg-white/[0.07]"
+                      active
+                        ? "border-teal-500/40 bg-teal-500/10"
+                        : "border-transparent bg-white/[0.03] hover:bg-white/[0.07]"
                     }`}
                   >
                     <span className="min-w-0">
@@ -537,7 +553,11 @@ export default function MapPage() {
               aria-pressed={drillDown}
               className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-teal-500/15 px-3 text-sm font-semibold text-teal-200 hover:bg-teal-500/25"
             >
-              {drillDown ? <ArrowLeft className="h-4 w-4" aria-hidden /> : <Building2 className="h-4 w-4" aria-hidden />}
+              {drillDown ? (
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+              ) : (
+                <Building2 className="h-4 w-4" aria-hidden />
+              )}
               {drillDown ? t.mapPage.districtClose : t.mapPage.districtDrill}
             </button>
             {drillDown && districtData ? (
@@ -553,7 +573,9 @@ export default function MapPage() {
                           onClick={() => setSelectedDistrict(district.code)}
                           aria-current={district.code === selectedDistrict ? "true" : undefined}
                           className={`flex min-h-10 w-full items-center justify-between rounded-lg px-2.5 text-left text-sm ${
-                            district.code === selectedDistrict ? "bg-teal-500/15 text-teal-100" : "text-slate-200 hover:bg-white/5"
+                            district.code === selectedDistrict
+                              ? "bg-teal-500/15 text-teal-100"
+                              : "text-slate-200 hover:bg-white/5"
                           }`}
                         >
                           {district.name}
@@ -564,7 +586,7 @@ export default function MapPage() {
                       </li>
                     ))}
                 </ul>
-                <p className="text-[11px] leading-relaxed text-slate-500">{t.mapPage.districtNote}</p>
+                <p className="text-[11px] leading-relaxed text-slate-400">{t.mapPage.districtNote}</p>
               </>
             ) : null}
           </div>
@@ -574,9 +596,7 @@ export default function MapPage() {
           <div>
             <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
               {t.mapPage.topTypes} · {crimeTypeYear} ·{" "}
-              {drillDown && selectedDistrict
-                ? districts.find((d) => d.code === selectedDistrict)?.name
-                : selected.name}
+              {drillDown && selectedDistrict ? districts.find((d) => d.code === selectedDistrict)?.name : selected.name}
             </p>
             <ul className="space-y-1 text-xs text-slate-300">
               {topTypes.map((type) => (
@@ -597,7 +617,11 @@ export default function MapPage() {
       const low = index === 0 ? null : breaks[index - 1];
       const high = index < breaks.length ? breaks[index] : null;
       const label =
-        low == null ? `< ${formatNumber(high ?? 0, 1)}` : high == null ? `≥ ${formatNumber(low, 1)}` : `${formatNumber(low, 1)} – ${formatNumber(high, 1)}`;
+        low == null
+          ? `< ${formatNumber(high ?? 0, 1)}`
+          : high == null
+            ? `≥ ${formatNumber(low, 1)}`
+            : `${formatNumber(low, 1)} – ${formatNumber(high, 1)}`;
       return { color, label };
     });
     return (

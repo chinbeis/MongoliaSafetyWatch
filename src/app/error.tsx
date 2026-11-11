@@ -35,7 +35,7 @@ export default function RouteError({
             {t.backHome}
           </Link>
         </div>
-        {error.digest ? <p className="mono-data mt-6 text-xs text-slate-500">#{error.digest}</p> : null}
+        {error.digest ? <p className="mono-data mt-6 text-xs text-slate-400">#{error.digest}</p> : null}
       </div>
     </div>
   );

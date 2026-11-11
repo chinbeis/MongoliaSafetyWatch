@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import { ExternalLink } from "lucide-react";
 import geoSources from "../../../public/geo/SOURCES.json";
 import { formatMonthLabel, getMeta } from "@/lib/crime-snapshot";
@@ -6,10 +7,7 @@ import { GRID_CELL_METERS, MAX_RADIUS_M, MIN_RADIUS_M } from "@/lib/geo-privacy"
 import { REPORT_TTL_DAYS } from "@/lib/community-categories";
 import { t } from "@/lib/translations";
 
-export const metadata: Metadata = {
-  title: t.dataSources,
-  description: "Энэ сайтад ашигласан албан ёсны статистик, газрын зургийн хил, суурь зургийн эх сурвалж ба арга зүй.",
-};
+export const metadata: Metadata = pageMetadata(t.dataSources, "Энэ сайтад ашигласан албан ёсны статистик, газрын зургийн хил, суурь зургийн эх сурвалж ба арга зүй.");
 
 type GeoSource = { sourceName: string; datasetUrl: string; license: string; licenseUrl: string; attribution: string; retrieved: string };
 

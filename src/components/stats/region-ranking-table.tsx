@@ -58,7 +58,7 @@ export function RegionRankingTable({ rows, rateYear, countLabel }: { rows: Ranki
   return (
     <div>
       <div className="relative mb-3">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -82,7 +82,7 @@ export function RegionRankingTable({ rows, rateYear, countLabel }: { rows: Ranki
           <tbody>
             {visible.map((row, index) => (
               <tr key={row.code} className="border-t border-white/5">
-                <td className="mono-data py-2 pl-3 text-slate-500">{index + 1}</td>
+                <td className="mono-data py-2 pl-3 text-slate-400">{index + 1}</td>
                 <th scope="row" className="py-2 pr-2 font-medium text-slate-100">{row.name}</th>
                 <td className="mono-data py-2 pr-3 text-right text-slate-100">
                   {row.rate != null ? row.rate.toLocaleString("mn-MN", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : "—"}

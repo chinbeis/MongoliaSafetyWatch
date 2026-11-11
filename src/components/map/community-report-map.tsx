@@ -143,7 +143,12 @@ export function CommunityReportMap({
     mapInstanceRef.current = map;
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
+    const attribution = new maplibregl.AttributionControl({ compact: true });
+    map.addControl(attribution, "bottom-right");
+    // Start collapsed (the "i" button still expands it). The always-visible
+    // <MapAttribution> line carries the attribution, and the expanded box
+    // would otherwise become the page's late Largest Contentful Paint.
+    map.getContainer().querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show");
 
     // Basemap host unreachable: fall back to a plain style so the data layers
     // still render, and tell the user.

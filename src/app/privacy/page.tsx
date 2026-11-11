@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Нууцлалын бодлого",
-  description: "Энэ сайт ямар мэдээлэл хадгалдаг, юуг хадгалдаггүй, хэрхэн устгуулах хүсэлт гаргах тухай.",
-};
+export const metadata: Metadata = pageMetadata("Нууцлалын бодлого", "Энэ сайт ямар мэдээлэл хадгалдаг, юуг хадгалдаггүй, хэрхэн устгуулах хүсэлт гаргах тухай.");
 
 // NOTE FOR MAINTAINERS: this page must describe what the code actually does.
 // Change it in the same PR as any change to storage, logging, analytics,

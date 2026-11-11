@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/page-metadata";
 import Link from "next/link";
 import { Activity, BarChart3, CalendarRange, Download, FileSpreadsheet, Layers, ListOrdered } from "lucide-react";
 import { Disclaimer } from "@/components/ui/disclaimer";
@@ -27,10 +28,7 @@ import {
 } from "@/lib/crime-snapshot";
 import { t } from "@/lib/translations";
 
-export const metadata: Metadata = {
-  title: t.statsPage.title,
-  description: t.statsPage.description,
-};
+export const metadata: Metadata = pageMetadata(t.statsPage.title, t.statsPage.description);
 
 function monthsLabel(year: number) {
   const months = getMonthsAvailable(year);

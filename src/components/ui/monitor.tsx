@@ -44,7 +44,7 @@ export function MonitorPanel({
               onClick={() => setCollapsed((current) => !current)}
               aria-expanded={!collapsed}
               aria-label={collapsed ? `${title} — дэлгэх` : `${title} — хураах`}
-              className="rounded-lg p-1 text-slate-500 transition-colors hover:bg-white/5 hover:text-slate-200"
+              className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
             >
               <ChevronDown
                 className={`h-4 w-4 transition-transform duration-300 ${collapsed ? "-rotate-90" : ""}`}

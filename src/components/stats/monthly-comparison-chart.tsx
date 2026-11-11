@@ -59,9 +59,9 @@ export default function MonthlyComparisonChart({ series, years, defaultYear }: M
         </label>
       </div>
 
-      <div className="h-[300px] w-full" aria-hidden>
+      <div className="h-[300px] w-full" role="img" aria-label={t.statsPage.chartLabel(year, previousYear)}>
         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-          <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+          <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }} accessibilityLayer={false}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1f2a3b" />
             <XAxis dataKey="month" stroke="#64748b" tickLine={false} axisLine={false} tickFormatter={(m) => `${m}`} />
             <YAxis stroke="#64748b" tickLine={false} axisLine={false} width={56} tickFormatter={format} />
