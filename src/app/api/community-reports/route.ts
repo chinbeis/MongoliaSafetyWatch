@@ -1,91 +1,74 @@
-import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { getDb } from "@/db";
-import { communityReports } from "@/db/schema";
-import { verifyCaptchaToken } from "@/lib/community-captcha";
-import { getCategoryLabel } from "@/lib/community-categories";
-import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { apiError, readJson, retryAfter } from "@/lib/api-response";
+import { getClientKey } from "@/lib/client-key";
+import { checkHuman, getCommunityWriteStatus } from "@/lib/community-bot-check";
+import { createReportSchema, insertReport, listPublicReports } from "@/lib/community-reports";
+import { isInsideMongoliaBounds } from "@/lib/geo-privacy";
+import { reportAlert } from "@/lib/monitoring";
+import { DAY_MS, HOUR_MS, MINUTE_MS, rateLimit } from "@/lib/rate-limit";
 
-const POST_LIMIT = 5;
-const POST_WINDOW_MS = 1000 * 60 * 10;
+const CREATE_SHORT = { limit: 3, windowMs: 10 * MINUTE_MS };
+const CREATE_DAILY = { limit: 10, windowMs: DAY_MS };
+/** Site-wide circuit breaker: more than this many new pins per hour → 503. */
+const GLOBAL_CREATE_PER_HOUR = 300;
 
 export async function GET() {
   try {
-    const reports = await getDb()
-      .select()
-      .from(communityReports)
-      .where(eq(communityReports.hidden, false))
-      .orderBy(desc(communityReports.createdAt))
-      .limit(200);
-
-    return NextResponse.json(reports);
+    const reports = await listPublicReports();
+    return NextResponse.json(
+      { reports },
+      { headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120" } }
+    );
   } catch (error) {
     console.error("Failed to fetch community reports:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiError("server_error", 500);
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const limit = rateLimit(`community-report:${getClientIp(request)}`, POST_LIMIT, POST_WINDOW_MS);
-    if (!limit.allowed) {
-      return NextResponse.json(
-        { error: "Хэт олон хүсэлт илгээлээ. Хэсэг хүлээгээд дахин оролдоно уу." },
-        { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
-      );
+    const status = getCommunityWriteStatus();
+    if (!status.writable) {
+      return apiError("readonly", 503);
     }
 
-    const body = await request.json();
-
-    const category = String(body.category ?? "").trim();
-    const latitude = Number(body.latitude);
-    const longitude = Number(body.longitude);
-    const radiusMeters = Number(body.radiusMeters);
-    const captchaToken = String(body.captchaToken ?? "");
-    const captchaAnswer = Number(body.captchaAnswer);
-
-    if (
-      !category ||
-      !Number.isFinite(latitude) ||
-      !Number.isFinite(longitude) ||
-      !Number.isFinite(radiusMeters)
-    ) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const clientKey = getClientKey(request);
+    const short = await rateLimit(`create:10m:${clientKey}`, CREATE_SHORT.limit, CREATE_SHORT.windowMs);
+    if (!short.allowed) {
+      return apiError("rate_limited", 429, retryAfter(short.retryAfterSeconds));
+    }
+    const daily = await rateLimit(`create:1d:${clientKey}`, CREATE_DAILY.limit, CREATE_DAILY.windowMs);
+    if (!daily.allowed) {
+      return apiError("rate_limited", 429, retryAfter(daily.retryAfterSeconds));
     }
 
-    const categoryLabel = getCategoryLabel(category);
-    if (!categoryLabel) {
-      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    const parsed = createReportSchema.safeParse(await readJson(request));
+    if (!parsed.success) {
+      return apiError("invalid_body", 400);
+    }
+    const body = parsed.data;
+
+    if (!isInsideMongoliaBounds(body.latitude, body.longitude)) {
+      return apiError("out_of_bounds", 400);
     }
 
-    if (latitude < 41 || latitude > 53 || longitude < 87 || longitude > 120) {
-      return NextResponse.json({ error: "Coordinates out of bounds" }, { status: 400 });
+    const human = await checkHuman(status, body, "community-create", { requireInMathMode: true });
+    if (!human.ok) {
+      return apiError(human.code, human.status);
     }
 
-    if (radiusMeters < 50 || radiusMeters > 5000) {
-      return NextResponse.json({ error: "Radius out of bounds" }, { status: 400 });
+    const breaker = await rateLimit("global:create:1h", GLOBAL_CREATE_PER_HOUR, HOUR_MS);
+    if (!breaker.allowed) {
+      if (breaker.count === GLOBAL_CREATE_PER_HOUR + 1) {
+        reportAlert("Community pin circuit breaker tripped", { limitPerHour: GLOBAL_CREATE_PER_HOUR });
+      }
+      return apiError("busy", 503, retryAfter(breaker.retryAfterSeconds));
     }
 
-    if (!verifyCaptchaToken(captchaToken, captchaAnswer)) {
-      return NextResponse.json({ error: "Captcha verification failed" }, { status: 400 });
-    }
-
-    const [report] = await getDb()
-      .insert(communityReports)
-      .values({
-        category: category as typeof communityReports.$inferInsert.category,
-        title: categoryLabel,
-        details: null,
-        areaLabel: null,
-        latitude,
-        longitude,
-        radiusMeters,
-      })
-      .returning();
-
-    return NextResponse.json(report, { status: 201 });
+    const report = await insertReport(body);
+    return NextResponse.json({ report }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Failed to create community report:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiError("server_error", 500);
   }
 }

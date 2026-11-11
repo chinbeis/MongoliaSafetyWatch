@@ -103,8 +103,9 @@ h4 {
   display: none;
 }
 
-/* MapLibre dark popup + controls */
-.maplibregl-popup-content {
+/* MapLibre dark popup + controls. Scoped under .maplibregl-map for higher
+   specificity: maplibre-gl.css loads with the lazy map chunk, after this file. */
+.maplibregl-map .maplibregl-popup-content {
   background: rgba(12, 18, 29, 0.96);
   color: #e6edf6;
   border: 1px solid rgba(148, 163, 184, 0.16);
@@ -114,38 +115,38 @@ h4 {
   padding: 10px 12px;
 }
 
-.maplibregl-popup-tip {
+.maplibregl-map .maplibregl-popup-tip {
   display: none;
 }
 
-.maplibregl-popup-close-button {
+.maplibregl-map .maplibregl-popup-close-button {
   color: #9aa7bd;
   font-size: 16px;
   padding-right: 6px;
 }
 
-.maplibregl-ctrl-group {
+.maplibregl-map .maplibregl-ctrl-group {
   background: rgba(12, 18, 29, 0.92) !important;
   border: 1px solid rgba(148, 163, 184, 0.16) !important;
 }
 
-.maplibregl-ctrl-group button {
+.maplibregl-map .maplibregl-ctrl-group button {
   background: transparent !important;
 }
 
-.maplibregl-ctrl-group button + button {
+.maplibregl-map .maplibregl-ctrl-group button + button {
   border-top: 1px solid rgba(148, 163, 184, 0.16) !important;
 }
 
-.maplibregl-ctrl-group button span {
+.maplibregl-map .maplibregl-ctrl-group button span {
   filter: invert(1);
 }
 
-.maplibregl-ctrl-attrib {
+.maplibregl-map .maplibregl-ctrl-attrib {
   background: rgba(7, 11, 18, 0.7) !important;
 }
 
-.maplibregl-ctrl-attrib a {
+.maplibregl-map .maplibregl-ctrl-attrib a {
   color: #9aa7bd !important;
 }
 
@@ -402,4 +403,59 @@ input[type="range"].range-premium::-moz-range-thumb {
   border: 3px solid #14b8a6;
   box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.8);
   cursor: pointer;
+}
+
+/* Monitor pages fill the viewport exactly; stop the document from scrolling
+   (replaces the old document.documentElement.style.overflow hack). */
+html:has(.monitor-shell),
+body:has(.monitor-shell) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Community pin popup (built with DOM APIs in community-report-map.tsx) */
+.community-popup {
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.community-popup__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #f1f5f9;
+  padding-right: 16px;
+}
+
+.community-popup__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.community-popup__meta {
+  margin: 0;
+  color: #9aa7bd;
+  font-size: 12px;
+}
+
+.community-popup__flag {
+  margin-top: 4px;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(148, 163, 184, 0.08);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.community-popup__flag:hover,
+.community-popup__flag:focus-visible {
+  background: rgba(148, 163, 184, 0.16);
 }

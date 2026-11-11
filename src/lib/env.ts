@@ -106,7 +106,7 @@ export function parseServerEnv(
 
 let cached: ServerEnv | null = null;
 
-function isProductionRuntime() {
+export function isProductionRuntime() {
   return process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build";
 }
 

@@ -18,7 +18,7 @@ import {
   PanelLeftClose,
   SlidersHorizontal,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   getCrimeIndicators,
   getCrimeSnapshot,
@@ -156,18 +156,6 @@ export default function MapPage() {
     }
     return (selectedHotspot.count / nationalTotal) * 100;
   }, [nationalTotal, selectedHotspot]);
-
-  useEffect(() => {
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousBodyOverflow = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousBodyOverflow;
-    };
-  }, []);
 
   return (
     <div className="monitor-shell relative h-[calc(100dvh-4rem)] overflow-hidden">

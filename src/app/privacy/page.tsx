@@ -1,96 +1,141 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Нууцлалын бодлого",
+  description: "Энэ сайт ямар мэдээлэл хадгалдаг, юуг хадгалдаггүй, хэрхэн устгуулах хүсэлт гаргах тухай.",
+};
+
+// NOTE FOR MAINTAINERS: this page must describe what the code actually does.
+// Change it in the same PR as any change to storage, logging, analytics,
+// bot protection or retention. Pending legal review (LAUNCH_PLAN §2.6).
+
+const LAST_UPDATED = "2026 оны 11-р сарын 11";
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h2 className="text-xl font-bold text-slate-50 mb-3">{title}</h2>
+      <div className="space-y-3 text-slate-300 leading-relaxed">{children}</div>
+    </section>
+  );
+}
+
+function List({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {items.map((item) => (
+        <li key={item} className="flex gap-3">
+          <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-400" aria-hidden />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen">
-      
-      {/* Header */}
       <div className="border-b border-white/5">
         <div className="max-w-4xl mx-auto px-5 py-10 sm:py-14">
-          <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-3">
-            Нууцлалын бодлого
-          </h1>
-          <p className="text-sm text-slate-500">
-            Хүчин төгөлдөр болсон огноо: 2026 оны 2-р сарын 1
-          </p>
+          <h1 className="text-3xl sm:text-5xl font-bold text-slate-50 mb-3">Нууцлалын бодлого</h1>
+          <p className="text-sm text-slate-400">Сүүлд шинэчилсэн: {LAST_UPDATED}</p>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-5 py-10">
-        
-        <div className="surface-card rounded-xl p-6 sm:p-8 space-y-8">
-          
-          <section>
-            <h2 className="text-xl font-bold text-slate-50 mb-3">
-              1. Өгөгдлийн нэгтгэл ба нэр хаяггүй байдал
-            </h2>
-            <p className="text-slate-300 leading-relaxed mb-4">
-              Энэхүү платформын үндсэн зарчим нь хувь хүний нууцыг хамгаалах явдал юм. 
-              Бид хувь хүний мэдээллийг цуглуулдаггүй, хадгалдаггүй, нийтэлдэггүй. 
-              Бүх өгөгдлийг дараах аргаар боловсруулдаг:
+        <div className="surface-card rounded-2xl p-6 sm:p-8 space-y-10">
+          <Section title="1. Ерөнхий зарчим">
+            <p>
+              Энэ сайтад бүртгэл, нэвтрэх эрх байхгүй. Бид таны нэр, утасны дугаар, и-мэйл, IP хаягийг хадгалдаггүй.
+              Нийтэд харуулах бүх мэдээлэл нь нэгтгэсэн эсвэл ойролцоо бүсийн түвшинд байна.
             </p>
-            <div className="space-y-2">
-              <div className="flex gap-3">
-                <span className="text-slate-50 font-bold shrink-0">•</span>
-                <p className="text-slate-300">
-                  Нэр, зураг болон тодорхой хаягийг бүрэн устгадаг
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-slate-50 font-bold shrink-0">•</span>
-                <p className="text-slate-300">
-                  Хэргийн байршлыг бүс нутгийн түвшинд эсвэл 1км-ээс багагүй радиуст нэгтгэдэг
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-slate-50 font-bold shrink-0">•</span>
-                <p className="text-slate-300">
-                  Тодорхой цаг хугацааг жил эсвэл сарын түвшинд ерөнхийлөн харуулдаг
-                </p>
-              </div>
-            </div>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-xl font-bold text-slate-50 mb-3">
-              2. Бидний цуглуулдаг мэдээлэл
-            </h2>
-            <p className="text-slate-300 leading-relaxed">
-              Бид хэрэглэгчийн бүртгэл шаарддаггүй. Платформын хүртээмжийг сайжруулах зорилгоор 
-              зөвхөн хүн таних боломжгүй вэб аналитик (хөтчийн төрөл, төхөөрөмж г.м) мэдээллийг 
-              цуглуулж болно.
+          <Section title="2. Албан ёсны статистик">
+            <p>
+              Статистикийн хэсэг дэх тоо баримтыг Үндэсний статистикийн хорооны нээлттэй өгөгдлийн сангаас (1212.mn)
+              авдаг. Тэдгээр нь аймаг, нийслэлийн түвшний (Улаанбаатар хотын хувьд дүүргийн түвшний) нэгтгэсэн тоо бөгөөд
+              хувь хүн, тодорхой хэрэгтэй холбогдох мэдээлэл агуулдаггүй. 1-ээс 4 хүртэлх жижиг тоог «5-аас бага» гэж
+              харуулна.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-xl font-bold text-slate-50 mb-3">
-              3. Cookies (Күүки)
-            </h2>
-            <p className="text-slate-300 leading-relaxed">
-              Интерактив зураглал болон статистикийн хэсгийг хэвийн ажиллуулахын тулд зайлшгүй 
-              шаардлагатай күүки ашигладаг. Та хөтчийнхөө тохиргооноос күүкиг идэвхгүй болгож болох 
-              ч энэ нь зарим функцийг хязгаарлаж болзошгүй.
+          <Section title="3. Иргэдийн зураг — юу хадгалдаг вэ">
+            <p>Та иргэдийн зураг дээр тэмдэглэгээ үлдээхэд зөвхөн дараах мэдээллийг хадгална:</p>
+            <List
+              items={[
+                "Ангилал (жишээ нь «Хулгай», «Сэжигтэй хөдөлгөөн»).",
+                "Ойролцоо цэг — таны сонгосон байршлыг сервер дээр ~250 метрийн торны төв рүү бөөрөнхийлсний дараах утга. Яг байршил хаана ч хадгалагдахгүй.",
+                "Бүсийн радиус (250–2000 метр).",
+                "Үүсгэсэн огноо, цаг.",
+                "Хяналтын төлөв (нийтэд харагдах / хянагдаж буй / устгасан) болон мэдэгдлийн тоо.",
+              ]}
+            />
+            <p>
+              Тайлбар, нэр, хаяг бичих талбар байхгүй. Тэмдэглэгээ нийтийн зураг дээр 30 хоног харагдаад автоматаар
+              алга болно. Үүний дараа нийтэд харагдахгүй ч хяналтын зорилгоор өгөгдлийн санд үлдэнэ.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-xl font-bold text-slate-50 mb-3">
-              4. Гуравдагч талын үйлчилгээ
-            </h2>
-            <p className="text-slate-300 leading-relaxed">
-              Бид зураглалын зорилгоор MapLibre GL JS болон нээлттэй OpenStreetMap өгөгдлийг ашигладаг. 
-              Эдгээр үйлчилгээ нь өөрийн нууцлалын бодлогын дагуу ажиллана.
+          <Section title="4. Зүй бус хэрэглээнээс хамгаалах">
+            <List
+              items={[
+                "Хэт олон хүсэлтийг хязгаарлахын тулд таны IP хаягийг нууц түлхүүр болон тухайн өдрийн огноотой хольж нэг чиглэлтэй (буцааж тайлах боломжгүй) код болгоно. IP хаяг өөрөө хадгалагдахгүй. Энэ код өдөр бүр өөрчлөгдөх тул өөр өдрүүдийн хүсэлтийг хооронд нь холбох боломжгүй. Тоолуурын мөрүүд 2 хоногийн дотор устана.",
+                "Нэг хүн нэг тэмдэглэгээг олон дахин мэдэгдэхээс сэргийлэхийн тулд мэдэгдэл бүрийн хажууд дээрх кодыг хадгална. Тэмдэглэгээ устахад хамт устана.",
+                "Хүний шалгалтад Cloudflare Turnstile үйлчилгээг ашиглана. Шалгалтын үед таны хөтөч Cloudflare-тай шууд холбогдох бөгөөд Cloudflare өөрийн нууцлалын бодлогын дагуу техникийн мэдээлэл боловсруулна. Манай сервер таны IP хаягийг Cloudflare руу дамжуулдаггүй.",
+              ]}
+            />
+          </Section>
+
+          <Section title="5. Аналитик ба алдааны хяналт">
+            <List
+              items={[
+                "Хуудас үзэлтийн нэгтгэсэн тоог Vercel Web Analytics-аар хэмждэг. Энэ нь күүки ашигладаггүй бөгөөд хэрэглэгчийг хувь хүнээр нь ялгаж хадгалдаггүй.",
+                "Сайтын алдааг илрүүлэхийн тулд Sentry үйлчилгээг ашиглаж болно. Алдааны тайланд IP хаяг, хүсэлтийн агуулга, хаягийн мөрийн параметр оруулахгүйгээр тохируулсан.",
+                "Google Analytics, Facebook pixel зэрэг хэрэглэгч мөшгих хэрэгсэл, зар сурталчилгаа ашигладаггүй.",
+              ]}
+            />
+          </Section>
+
+          <Section title="6. Күүки ба хөтчийн санах ой">
+            <p>
+              Бид күүки ашигладаггүй. Таны хөтчийн дотоод санах ойд (localStorage) зөвхөн «Иргэдийн зураг гэж юу вэ?»
+              тайлбарыг харсан эсэхийг тэмдэглэнэ. «Миний ойролцоо» товч таны байршлыг зөвхөн хөтөч дотроо ашиглаж хамгийн
+              ойр бүсийг олдог; байршил манай сервер рүү илгээгдэхгүй.
             </p>
-          </section>
+          </Section>
 
-          <section>
-            <h2 className="text-xl font-bold text-slate-50 mb-3">
-              5. Холбоо барих
-            </h2>
-            <p className="text-slate-300 leading-relaxed">
-              Нууцлалын бодлого болон өгөгдөл нэгтгэх арга зүйтэй холбоотой асуулт байвал 
-              &quot;Бидний тухай&quot; хуудас дээрх сувгаар хандана уу.
+          <Section title="7. Гуравдагч талын үйлчилгээ">
+            <List
+              items={[
+                "Газрын зургийн суурь давхаргыг OpenFreeMap (OpenStreetMap өгөгдөл) үйлчилгээнээс таны хөтөч шууд татаж авна.",
+                "Сайт Vercel платформ дээр, өгөгдлийн сан Neon (Сингапур) дээр байрладаг.",
+              ]}
+            />
+          </Section>
+
+          <Section title="8. Устгуулах хүсэлт">
+            <p>
+              Хэрэв аливаа тэмдэглэгээ таны эсвэл бусдын эрх ашгийг хөндсөн гэж үзвэл тэмдэглэгээн дээрх «Зохисгүй гэж
+              мэдэгдэх» товчийг ашиглах, эсвэл ойролцоо байршил, огноог дурдан{" "}
+              <a href="mailto:info@catchpred.mn" className="font-semibold text-teal-300 underline">
+                info@catchpred.mn
+              </a>{" "}
+              хаягаар хандана уу. Бид хүсэлтийг хянаж шийдвэрлэнэ.
             </p>
-          </section>
+          </Section>
 
+          <Section title="9. Өөрчлөлт">
+            <p>
+              Энэ бодлогыг сайтын ажиллагаа өөрчлөгдөх бүрт шинэчилнэ. Холбогдох асуултыг{" "}
+              <Link href="/about" className="font-semibold text-teal-300 underline">
+                «Бидний тухай»
+              </Link>{" "}
+              хуудсанд заасан сувгаар асууна уу.
+            </p>
+          </Section>
         </div>
       </div>
     </div>
